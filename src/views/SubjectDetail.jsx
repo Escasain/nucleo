@@ -1,13 +1,16 @@
-import React, { useMemo, useState } from 'react'
+import React, { Suspense, lazy, useMemo, useState } from 'react'
 import { useStore } from '../lib/store.jsx'
 import { subjectById, BLOCKS, STATUS_META } from '../data/curriculum.js'
 import { todayISO, formatShort, minutesLabel, relativeLabel, isOverdue } from '../lib/dates.js'
 import { pickDriveFiles, isPickerConfigured } from '../lib/driveSync.js'
 import Modal from '../components/Modal.jsx'
 import Checkbox from '../components/Checkbox.jsx'
+// La guía trae bastante contenido: se carga solo al abrir una asignatura.
+const StudyGuide = lazy(() => import('../components/StudyGuide.jsx'))
 import { IconArrowLeft, IconPlus, IconTrash, IconDrive, IconLink, IconCards, IconExternal } from '../components/Icons.jsx'
 
 const TABS = [
+  { id: 'guia', label: 'Guía de estudio' },
   { id: 'clases', label: 'Clases y sesiones' },
   { id: 'recursos', label: 'Recursos' },
   { id: 'evaluaciones', label: 'Evaluaciones' },
@@ -26,7 +29,7 @@ function resourceKindLabel(r) {
 export default function SubjectDetail({ id, navigate }) {
   const { data, dispatch, toast } = useStore()
   const subject = subjectById(id)
-  const [tab, setTab] = useState('clases')
+  const [tab, setTab] = useState('guia')
   const [sessionModal, setSessionModal] = useState(false)
   const [taskModal, setTaskModal] = useState(false)
   const [linkModal, setLinkModal] = useState(false)
@@ -149,6 +152,12 @@ export default function SubjectDetail({ id, navigate }) {
         ))}
       </div>
 
+      {tab === 'guia' && (
+        <Suspense fallback={<div className="empty">Cargando la guía de estudio…</div>}>
+          <StudyGuide subjectId={id} />
+        </Suspense>
+      )}
+
       {tab === 'clases' && (
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -193,7 +202,7 @@ export default function SubjectDetail({ id, navigate }) {
       {tab === 'recursos' && (
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-            <h3 style={{ marginBottom: 0 }}>Apuntes, vídeos y material</h3>
+            <h3 style={{ marginBottom: 0 }}>Mis recursos</h3>
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 className="btn btn-secondary btn-sm"
@@ -231,7 +240,8 @@ export default function SubjectDetail({ id, navigate }) {
           ))}
           {resources.length === 0 && (
             <div className="empty">
-              Vincula apuntes de tu Drive o enlaces (vídeos, documentación, campus virtual…).
+              Aquí van tus propios enlaces y ficheros. Desde la pestaña «Guía de estudio» puedes guardar cualquier
+              recurso recomendado con un clic.
             </div>
           )}
         </div>

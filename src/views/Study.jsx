@@ -3,7 +3,8 @@ import { useStore } from '../lib/store.jsx'
 import { CURRICULUM } from '../data/curriculum.js'
 import { todayISO } from '../lib/dates.js'
 import Modal from '../components/Modal.jsx'
-import { IconPlus, IconTrash } from '../components/Icons.jsx'
+import { IconPlus, IconTrash, IconExternal } from '../components/Icons.jsx'
+import { STUDENT_KIT, UNIPRO_EVALUATION } from '../data/guide/meta.js'
 
 export default function Study({ subjectId, navigate }) {
   const { data } = useStore()
@@ -72,8 +73,58 @@ export default function Study({ subjectId, navigate }) {
 
         <div>
           <Pomodoro subjects={subjects} />
+          <StudentKit />
         </div>
       </div>
+    </div>
+  )
+}
+
+/* ---------------- Kit del estudiante ---------------- */
+
+function StudentKit() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="card">
+      <button
+        type="button"
+        className="guide-toggle"
+        aria-expanded={open}
+        aria-controls="student-kit"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <h3 style={{ marginBottom: 0 }}>Kit del estudiante</h3>
+        <span className="guide-toggle-hint">{open ? 'Ocultar' : `${STUDENT_KIT.length} herramientas`}</span>
+      </button>
+      <p className="guide-summary" style={{ marginTop: 8 }}>
+        Lo que sirve para todas las asignaturas. Cada asignatura tiene además su propia guía con temario, recursos
+        y laboratorio en la pestaña «Guía de estudio».
+      </p>
+      {open && (
+        <div id="student-kit">
+          <ul className="guide-list">
+            {STUDENT_KIT.map((k) => (
+              <li className="guide-res" key={k.url}>
+                <span className="guide-res-icon" aria-hidden="true">
+                  🛠️
+                </span>
+                <div className="guide-res-body">
+                  <a href={k.url} target="_blank" rel="noreferrer noopener" className="guide-res-title">
+                    {k.title}
+                    <IconExternal aria-hidden="true" />
+                  </a>
+                  <div className="guide-res-note">{k.note}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="guide-eval" style={{ marginTop: 12 }}>
+            <div className="guide-label">Cómo evalúa UNIPRO</div>
+            <p>{UNIPRO_EVALUATION.summary}</p>
+            <p style={{ marginBottom: 0 }}>{UNIPRO_EVALUATION.method}</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
