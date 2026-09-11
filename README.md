@@ -4,6 +4,8 @@ Portal personal de seguimiento del **Bachelor en Ingeniería Informática (UNIPR
 
 **App:** https://escasain.github.io/nucleo/
 
+La build usa rutas relativas (`base: './'` en `vite.config.js`), así que el mismo artefacto sirve tanto en la raíz de un dominio (Vercel, Netlify) como en un subdirectorio (GitHub Pages). El enrutado es por hash, así que no hace falta configurar reescrituras en el servidor.
+
 ## Qué hace
 
 - **Plan de estudios completo** — los 3 años con sus bloques bimestrales (septiembre, noviembre, marzo, mayo), llaves entre asignaturas y estado de cada una: pendiente, matriculada, cursando, aprobada, suspensa o reconocida.
@@ -27,6 +29,8 @@ Portal personal de seguimiento del **Bachelor en Ingeniería Informática (UNIPR
 3. **Deploy**: cada push a `main` construye y publica automáticamente en GitHub Pages (workflow en `.github/workflows/deploy.yml`).
 
    La primera vez hay que activar Pages a mano: **Settings → Pages → Source: GitHub Actions**. El token del workflow no tiene permiso para activarlo por su cuenta. Después, **Actions → Deploy a GitHub Pages → Run workflow** publica el sitio.
+
+   Si además lo despliegas en Vercel, no hay que configurar nada: detecta Vite y publica `dist/`. Recuerda añadir ese dominio a los orígenes autorizados de Google ([SETUP.md](SETUP.md), paso 4.3).
 
 ## Stack
 

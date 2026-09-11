@@ -25,9 +25,12 @@ Guía única, ~10 minutos, gratuita. Al terminar, la app guardará tus datos en 
 
 1. **APIs y servicios → Credenciales → + Crear credenciales → ID de cliente de OAuth**.
 2. Tipo de aplicación: **Aplicación web**. Nombre: `nucleo-web`.
-3. En **Orígenes de JavaScript autorizados** añade estos dos:
-   - `https://escasain.github.io`
-   - `http://localhost:5173`
+3. En **Orígenes de JavaScript autorizados** añade el origen de cada sitio desde el que vayas a abrir la app:
+   - `http://localhost:5173` (desarrollo)
+   - `https://escasain.github.io` (si usas GitHub Pages)
+   - `https://TU-PROYECTO.vercel.app` (si usas Vercel — el dominio exacto, sin barra final)
+
+   Google compara el origen **exacto**: si publicas en varios sitios, tienen que estar todos aquí. Si Vercel te cambia el dominio o añades uno propio, acuérdate de añadirlo también.
 4. No hace falta añadir URIs de redirección. **Crear**.
 5. Copia el **ID de cliente** (termina en `.apps.googleusercontent.com`).
 
@@ -72,7 +75,7 @@ El número de proyecto es imprescindible: con el ámbito `drive.file`, sin él e
 ## Problemas típicos
 
 - **«Error 403: access_denied»** al conectar → tu Gmail no está en usuarios de prueba (paso 3.4).
-- **«The given origin is not allowed»** → revisa que el origen exacto (con https y sin barra final) está en el paso 4.3.
+- **«The given origin is not allowed»** → revisa que el origen exacto (con https y sin barra final) está en el paso 4.3. Es el fallo típico al publicar en un dominio nuevo (por ejemplo al pasar de Pages a Vercel).
 - **El Picker no abre** → comprueba que la Google Picker API está habilitada (paso 2.3), que has hecho el paso 7 y que no hay bloqueador de popups.
 - **«Desde Drive» aparece desactivado** → falta el `GOOGLE_APP_ID` del paso 7. El resto de la app no lo necesita.
 - **Se queda en «Conectando…» y vuelve a «Sin conectar»** → normalmente es el bloqueador de popups del navegador: pulsa **Conectar con Drive** en Ajustes para hacerlo de forma manual.
