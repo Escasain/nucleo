@@ -26,6 +26,8 @@ Portal personal de seguimiento del **Bachelor en Ingeniería Informática (UNIPR
 
 3. **Deploy**: cada push a `main` construye y publica automáticamente en GitHub Pages (workflow en `.github/workflows/deploy.yml`).
 
+   La primera vez hay que activar Pages a mano: **Settings → Pages → Source: GitHub Actions**. El token del workflow no tiene permiso para activarlo por su cuenta. Después, **Actions → Deploy a GitHub Pages → Run workflow** publica el sitio.
+
 ## Stack
 
 Vite + React 18, sin más dependencias. CSS propio con el sistema de diseño **«Estudio de tarde»** (Fraunces + Figtree, paleta linen/pine/moss). Google Identity Services + Drive API v3 (ámbito mínimo `drive.file`). Service worker propio para la parte offline.
