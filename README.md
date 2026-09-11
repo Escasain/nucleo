@@ -2,9 +2,9 @@
 
 Portal personal de seguimiento del **Bachelor en Ingeniería Informática (UNIPRO)**.
 
-**App:** https://escasain.github.io/nucleo/
+**App:** https://nucleo-psi-cyan.vercel.app/
 
-La build usa rutas relativas (`base: './'` en `vite.config.js`), así que el mismo artefacto sirve tanto en la raíz de un dominio (Vercel, Netlify) como en un subdirectorio (GitHub Pages). El enrutado es por hash, así que no hace falta configurar reescrituras en el servidor.
+La build usa rutas relativas (`base: './'` en `vite.config.js`), así que el mismo artefacto sirve en la raíz de un dominio o en un subdirectorio. El enrutado es por hash, así que no hace falta configurar reescrituras en el servidor.
 
 ## Qué hace
 
@@ -15,7 +15,14 @@ La build usa rutas relativas (`base: './'` en `vite.config.js`), así que el mis
 - **Agenda** — todas las entregas y exámenes del curso en una vista única, con avisos de retraso.
 - **Herramientas de estudio** — flashcards con repaso espaciado (sistema Leitner) por asignatura y temporizador pomodoro que registra tus minutos de estudio.
 - **Tus datos, en tu Drive** — todo se guarda como `nucleo-data.json` en la carpeta `NÚCLEO` de tu Google Drive, con caché local para funcionar offline y exportación/importación JSON como copia de seguridad.
-- **PWA** — instalable en el móvil («Añadir a pantalla de inicio»).
+- **Panel «Hoy»** — bloque bimestral en curso, horario de hoy, tarjetas por repasar, entregas próximas y atrasadas, objetivo semanal y racha de días estudiando.
+- **Horario semanal y calendario mensual** — bloques fijos de estudio que aparecen cada día en Inicio; vista de mes con evaluaciones y sesiones.
+- **Progreso del temario** — marca cada tema estudiado desde la guía; el porcentaje se ve en la asignatura, en el plan y en Inicio.
+- **Calculadora de nota UNIPRO** — 70 % continua + 30 % prueba final; te dice qué necesitas en la prueba final para aprobar o para un 7.
+- **Expediente** — ECTS superados sobre 180, en curso, y nota media ponderada por créditos.
+- **Estadísticas de estudio** — minutos por día (últimos 7 días) y por asignatura, objetivo semanal configurable.
+- **Búsqueda global (Ctrl+K)**, **ayuda con atajos (?)**, tutorial de bienvenida, aviso de copia de seguridad e impresión de la guía.
+- **PWA** — instalable en el móvil («Añadir a pantalla de inicio»), funciona sin conexión.
 
 ## Puesta en marcha
 
@@ -27,11 +34,7 @@ La build usa rutas relativas (`base: './'` en `vite.config.js`), así que el mis
    npm run dev        # http://localhost:5173
    ```
 
-3. **Deploy**: cada push a `main` construye y publica automáticamente en GitHub Pages (workflow en `.github/workflows/deploy.yml`).
-
-   La primera vez hay que activar Pages a mano: **Settings → Pages → Source: GitHub Actions**. El token del workflow no tiene permiso para activarlo por su cuenta. Después, **Actions → Deploy a GitHub Pages → Run workflow** publica el sitio.
-
-   Si además lo despliegas en Vercel, no hay que configurar nada: detecta Vite y publica `dist/`. Recuerda añadir ese dominio a los orígenes autorizados de Google ([SETUP.md](SETUP.md), paso 4.3).
+3. **Deploy**: el proyecto está conectado a Vercel; cada push a `main` construye y publica solo (detecta Vite y sirve `dist/`). Recuerda añadir el dominio de Vercel a los orígenes autorizados de Google ([SETUP.md](SETUP.md), paso 4.3).
 
 ## Sobre la guía de estudio
 
@@ -53,10 +56,11 @@ src/
     year1.js, year2.js, year3.js, meta.js (kit del estudiante, evaluación)
   lib/
     store.jsx          ← estado global + persistencia (local y Drive)
+    stats.js           ← minutos, rachas, expediente, nota UNIPRO
     driveSync.js       ← OAuth, lectura/escritura en Drive, Picker
     router.jsx         ← rutas por hash
     dates.js
   views/               ← Dashboard, Plan, SubjectDetail, Agenda, Study, Settings
-  components/          ← Sidebar, Modal, Checkbox, Icons, StudyGuide (carga bajo demanda)
+  components/          ← Sidebar, Modal, Checkbox, Icons, StudyGuide (carga bajo demanda), SearchModal, HelpModal
   styles/global.css    ← sistema de diseño
 ```

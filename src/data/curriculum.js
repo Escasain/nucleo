@@ -8,6 +8,12 @@ export const BLOCKS = {
   may: { id: 'may', label: 'Mayo', month: 4, color: 'var(--block-may)' }
 }
 
+// Créditos: todas 6 ECTS salvo Deontología y Comunicación (3) y el TFB (12).
+export const TOTAL_ECTS = 180
+export function ectsOf(subject) {
+  return subject.ects ?? 6
+}
+
 // status inicial por defecto: 'pendiente'. Estados posibles:
 // 'pendiente' | 'matriculada' | 'cursando' | 'aprobada' | 'suspensa' | 'reconocida'
 export const CURRICULUM = [
@@ -27,13 +33,13 @@ export const CURRICULUM = [
   { id: 'estructura-datos', year: 1, block: 'may', name: 'Estructura de Datos (Java)' },
 
   // ---------- AÑO 2 ----------
-  { id: 'deontologia', year: 2, block: 'sep', name: 'Deontología y Legislación', english: true },
+  { id: 'deontologia', year: 2, block: 'sep', name: 'Deontología y Legislación', english: true, ects: 3 },
   {
     id: 'so1', year: 2, block: 'sep', name: 'Sistemas Operativos I',
     keyFor: 'so-avanzados', note: 'Llave de «Sistemas Operativos Avanzados»'
   },
   { id: 'redes', year: 2, block: 'sep', name: 'Redes de Ordenadores' },
-  { id: 'comunicacion', year: 2, block: 'nov', name: 'Comunicación y Liderazgo', english: true },
+  { id: 'comunicacion', year: 2, block: 'nov', name: 'Comunicación y Liderazgo', english: true, ects: 3 },
   { id: 'ing-software', year: 2, block: 'nov', name: 'Ingeniería de Software' },
   {
     id: 'so-avanzados', year: 2, block: 'nov', name: 'Sistemas Operativos Avanzados',
@@ -69,7 +75,7 @@ export const CURRICULUM = [
     id: 'optativa2', year: 3, block: 'mar', name: 'Optativa II: Aprendizaje Automático y Minería de Datos',
     optional: true
   },
-  { id: 'tfb', year: 3, block: 'mar', name: 'Trabajo de Fin de Bachelor', semestral: true }
+  { id: 'tfb', year: 3, block: 'mar', name: 'Trabajo de Fin de Bachelor', semestral: true, ects: 12 }
 ]
 
 // Estado inicial del expediente de Carlos — curso 2026/27 (año académico 1)
@@ -103,4 +109,48 @@ export function blockStartDate(academicYear, blockId) {
   const startYear = 2026 + (academicYear - 1)
   const year = b.month >= 8 ? startYear : startYear + 1
   return new Date(year, b.month, 1)
+}
+
+// Curso académico (etiqueta «2026/27») al que pertenece una fecha.
+// Empieza en septiembre.
+export function academicYearOf(date = new Date()) {
+  const y = date.getMonth() >= 8 ? date.getFullYear() : date.getFullYear() - 1
+  return { start: y, label: `${y}/${String(y + 1).slice(-2)}` }
+}
+
+// Año del plan (1, 2 o 3) que cursa el alumno en una fecha, contando
+// desde el curso 2026/27. Fuera de rango devuelve null.
+export function planYearOf(date = new Date()) {
+  const n = academicYearOf(date).start - 2026 + 1
+  return n >= 1 && n <= 3 ? n : null
+}
+
+// Bloque bimestral en curso para una fecha (aproximado: sep–oct,
+// nov–dic, mar–abr, may–jun). Entre bloques devuelve el siguiente con
+// upcoming=true.
+const BLOCK_ORDER = ['sep', 'nov', 'mar', 'may']
+export function blockOf(date = new Date()) {
+  const m = date.getMonth()
+  const { start } = academicYearOf(date)
+  const ranges = [
+    { id: 'sep', from: new Date(start, 8, 1), to: new Date(start, 10, 0) },
+    { id: 'nov', from: new Date(start, 10, 1), to: new Date(start + 1, 0, 0) },
+    { id: 'mar', from: new Date(start + 1, 2, 1), to: new Date(start + 1, 4, 0) },
+    { id: 'may', from: new Date(start + 1, 4, 1), to: new Date(start + 1, 6, 0) }
+  ]
+  const current = ranges.find((r) => date >= r.from && date <= r.to)
+  if (current) return { ...BLOCKS[current.id], from: current.from, to: current.to, upcoming: false }
+  const next = ranges.find((r) => date < r.from) || { ...ranges[0], from: new Date(start + 1, 8, 1), to: new Date(start + 1, 10, 0) }
+  return { ...BLOCKS[next.id], from: next.from, to: next.to, upcoming: true }
+}
+export function blockRanges(startYear) {
+  return BLOCK_ORDER.map((id) => {
+    const r = {
+      sep: [new Date(startYear, 8, 1), new Date(startYear, 10, 0)],
+      nov: [new Date(startYear, 10, 1), new Date(startYear + 1, 0, 0)],
+      mar: [new Date(startYear + 1, 2, 1), new Date(startYear + 1, 4, 0)],
+      may: [new Date(startYear + 1, 4, 1), new Date(startYear + 1, 6, 0)]
+    }[id]
+    return { ...BLOCKS[id], from: r[0], to: r[1] }
+  })
 }

@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react'
 import { useStore } from '../lib/store.jsx'
 import { guideFor, RESOURCE_TYPES, RESOURCE_GROUPS, UNIPRO_EVALUATION } from '../data/guide/index.js'
-import { IconExternal, IconPlus, IconCheck } from './Icons.jsx'
+import { IconExternal, IconPlus, IconCheck, IconPrint } from './Icons.jsx'
+import Checkbox from './Checkbox.jsx'
 
 const TYPE_ICON = {
   teoria: '📄',
@@ -78,6 +79,11 @@ export default function StudyGuide({ subjectId }) {
     toast('Añadido a mis recursos')
   }
 
+  const progress = data.topicProgress?.[subjectId] || { done: [], total: 0 }
+  const doneSet = new Set(progress.done)
+  const doneCount = guide.topics.filter((t) => doneSet.has(t)).length
+  const pct = Math.round((doneCount / guide.topics.length) * 100)
+
   const grouped = RESOURCE_GROUPS.map((g) => ({
     ...g,
     items: guide.resources.filter((r) => RESOURCE_TYPES[r.type].group === g.id)
@@ -89,6 +95,9 @@ export default function StudyGuide({ subjectId }) {
         <div className="guide-head">
           <h3 style={{ marginBottom: 0 }}>Guía de estudio</h3>
           <span className="chip">{guide.ects} ECTS</span>
+          <button type="button" className="btn btn-ghost btn-sm print-hide" style={{ marginLeft: 'auto' }} onClick={() => window.print()}>
+            <IconPrint aria-hidden="true" style={{ width: 14, height: 14 }} /> Imprimir
+          </button>
         </div>
         <p className="guide-summary">{guide.summary}</p>
         <div className="guide-approach">
@@ -109,16 +118,29 @@ export default function StudyGuide({ subjectId }) {
           aria-controls={`temario-${subjectId}`}
           onClick={() => setOpenTopics((v) => !v)}
         >
-          <h3 style={{ marginBottom: 0 }}>Temario orientativo</h3>
+          <h3 style={{ marginBottom: 0 }}>
+            Temario orientativo <span className="guide-count">{doneCount}/{guide.topics.length}</span>
+          </h3>
           <span className="guide-toggle-hint">{openTopics ? 'Ocultar' : `${guide.topics.length} temas`}</span>
         </button>
+        <div className="progress" style={{ marginTop: 10 }} role="progressbar" aria-valuemin={0} aria-valuemax={guide.topics.length} aria-valuenow={doneCount} aria-label="Temas estudiados">
+          <div style={{ width: `${pct}%` }} />
+        </div>
         {openTopics && (
           <div id={`temario-${subjectId}`}>
             <ol className="guide-topics">
               {guide.topics.map((t, i) => (
-                <li key={i}>{t}</li>
+                <li key={i} className={`topic-row${doneSet.has(t) ? ' done' : ''}`}>
+                  <Checkbox
+                    checked={doneSet.has(t)}
+                    label={`Tema estudiado: ${t}`}
+                    onChange={() => dispatch({ type: 'toggleTopic', subjectId, topic: t, total: guide.topics.length })}
+                  />
+                  <span>{t}</span>
+                </li>
               ))}
             </ol>
+            <p className="guide-fine print-hide">Marca cada tema cuando lo tengas estudiado: el porcentaje se ve en el plan y en Inicio.</p>
             <p className="guide-fine">
               Basado en el plan de UNIPRO y en las guías docentes públicas de esta asignatura. Contrasta el orden y los
               nombres exactos con la guía docente de tu campus.

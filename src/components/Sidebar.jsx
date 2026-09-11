@@ -1,6 +1,6 @@
 import React from 'react'
 import { useStore } from '../lib/store.jsx'
-import { IconHome, IconBook, IconCalendar, IconCards, IconGear } from './Icons.jsx'
+import { IconHome, IconBook, IconCalendar, IconCards, IconGear, IconSearch, IconHelp } from './Icons.jsx'
 
 const LINKS = [
   { hash: '#/', name: 'dashboard', label: 'Inicio', Icon: IconHome },
@@ -19,7 +19,7 @@ const SYNC_LABEL = {
   error: ['err', 'Error de sincronización']
 }
 
-export default function Sidebar({ activeName, open, onClose }) {
+export default function Sidebar({ activeName, open, onClose, onSearch, onHelp }) {
   const { syncStatus } = useStore()
   const [dotClass, label] = SYNC_LABEL[syncStatus] || ['', '']
 
@@ -29,6 +29,13 @@ export default function Sidebar({ activeName, open, onClose }) {
         NÚCLEO
         <small>Estudio de tarde</small>
       </div>
+      <button type="button" className="sidebar-search" onClick={onSearch} aria-label="Buscar (Ctrl+K)">
+        <IconSearch aria-hidden="true" />
+        <span>Buscar</span>
+        <span className="kbd" aria-hidden="true">
+          Ctrl K
+        </span>
+      </button>
       <nav className="nav" aria-label="Navegación principal">
         {LINKS.map(({ hash, name, label: l, Icon }) => {
           const active = activeName === name || (name === 'plan' && activeName === 'subject')
@@ -46,6 +53,10 @@ export default function Sidebar({ activeName, open, onClose }) {
           )
         })}
       </nav>
+      <button type="button" className="sidebar-help" onClick={onHelp} aria-label="Ayuda (tecla ?)">
+        <IconHelp aria-hidden="true" />
+        Ayuda y atajos
+      </button>
       <div className="sync-state" role="status">
         <span className={`sync-dot ${dotClass}`} aria-hidden="true" />
         {label}

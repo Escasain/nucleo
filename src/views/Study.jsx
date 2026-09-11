@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from '../lib/store.jsx'
 import { CURRICULUM } from '../data/curriculum.js'
-import { todayISO } from '../lib/dates.js'
+import { todayISO, minutesLabel } from '../lib/dates.js'
+import { minutesByDay, lastNDays, weekMinutes, streak, minutesBySubject } from '../lib/stats.js'
 import Modal from '../components/Modal.jsx'
 import { IconPlus, IconTrash, IconExternal } from '../components/Icons.jsx'
 import { STUDENT_KIT, UNIPRO_EVALUATION } from '../data/guide/meta.js'
@@ -73,9 +74,93 @@ export default function Study({ subjectId, navigate }) {
 
         <div>
           <Pomodoro subjects={subjects} />
+          <StudyStats />
           <StudentKit />
         </div>
       </div>
+    </div>
+  )
+}
+
+/* ---------------- Estadísticas de estudio ---------------- */
+
+const DOW = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
+
+function StudyStats() {
+  const { data } = useStore()
+  const goal = Number(data.settings?.weeklyGoalMin) || 0
+  const byDay = useMemo(() => minutesByDay(data), [data])
+  const days = useMemo(() => lastNDays(7), [])
+  const week = useMemo(() => weekMinutes(data), [data])
+  const run = useMemo(() => streak(data), [data])
+  const bySubject = useMemo(() => {
+    const m = minutesBySubject(data)
+    return Object.entries(m)
+      .map(([id, min]) => ({ id, min, name: id === '_' ? 'Sin asignatura' : CURRICULUM.find((s) => s.id === id)?.name || id }))
+      .sort((a, b) => b.min - a.min)
+      .slice(0, 8)
+  }, [data])
+  const max = Math.max(60, ...days.map((d) => byDay[d] || 0))
+  const total = days.reduce((acc, d) => acc + (byDay[d] || 0), 0)
+  const maxSubj = Math.max(1, ...bySubject.map((x) => x.min))
+
+  return (
+    <div className="card">
+      <h3>Tu estudio</h3>
+      <div className="stats-row">
+        <div>
+          <div className="stat-num">{minutesLabel(week)}</div>
+          <div className="stat-lbl">esta semana{goal > 0 ? ` · objetivo ${minutesLabel(goal)}` : ''}</div>
+          {goal > 0 && (
+            <div className="progress gold" style={{ marginTop: 6 }} role="progressbar" aria-valuemin={0} aria-valuemax={goal} aria-valuenow={week} aria-label="Objetivo semanal">
+              <div style={{ width: `${Math.min(100, Math.round((week / goal) * 100))}%` }} />
+            </div>
+          )}
+        </div>
+        <div>
+          <div className="stat-num">{run}</div>
+          <div className="stat-lbl">día{run === 1 ? '' : 's'} de racha</div>
+        </div>
+        <div>
+          <div className="stat-num">{minutesLabel(total)}</div>
+          <div className="stat-lbl">últimos 7 días</div>
+        </div>
+      </div>
+      <div className="bars" role="img" aria-label={`Minutos por día en los últimos 7 días: ${days.map((d) => byDay[d] || 0).join(', ')}`}>
+        {days.map((d) => {
+          const v = byDay[d] || 0
+          const dow = (new Date(d + 'T00:00:00').getDay() + 6) % 7
+          return (
+            <div className="bar" key={d} title={`${d}: ${minutesLabel(v)}`}>
+              <div className="bar-fill" style={{ height: `${Math.round((v / max) * 100)}%` }} />
+              <div className="bar-lbl">{DOW[dow]}</div>
+            </div>
+          )
+        })}
+      </div>
+      {bySubject.length > 0 && (
+        <>
+          <div className="guide-label" style={{ marginTop: 12 }}>
+            Por asignatura
+          </div>
+          <ul className="subj-bars">
+            {bySubject.map((x) => (
+              <li key={x.id}>
+                <span className="subj-name">{x.name}</span>
+                <span className="subj-track">
+                  <span className="subj-fill" style={{ width: `${Math.round((x.min / maxSubj) * 100)}%` }} />
+                </span>
+                <span className="subj-min">{minutesLabel(x.min)}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {goal === 0 && (
+        <p className="guide-fine">
+          Pon un objetivo semanal en <a href="#/ajustes">Ajustes</a> para ver tu progreso aquí y en Inicio.
+        </p>
+      )}
     </div>
   )
 }

@@ -16,6 +16,12 @@ function uid() {
   return Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4)
 }
 
+export const DEFAULT_SETTINGS = {
+  weeklyGoalMin: 600, // 10 h/semana
+  onboardingDone: false,
+  lastExportAt: null
+}
+
 export function emptyData() {
   return {
     version: APP_VERSION,
@@ -25,7 +31,10 @@ export function emptyData() {
     resources: {},
     tasks: [],
     decks: {},
-    pomodoro: []
+    pomodoro: [],
+    schedule: [],
+    topicProgress: {},
+    settings: { ...DEFAULT_SETTINGS }
   }
 }
 
@@ -53,7 +62,15 @@ export function normalize(raw) {
     tasks: asArray(raw.tasks).filter((t) => t && t.id),
     pomodoro: asArray(raw.pomodoro).filter((p) => p && p.id),
     resources: mapOfLists(raw.resources),
-    decks: mapOfLists(raw.decks)
+    decks: mapOfLists(raw.decks),
+    schedule: asArray(raw.schedule).filter((s) => s && s.id),
+    topicProgress: Object.fromEntries(
+      Object.entries(asObject(raw.topicProgress)).map(([k, v]) => [
+        k,
+        { done: asArray(v && v.done), total: Number(v && v.total) || 0 }
+      ])
+    ),
+    settings: { ...DEFAULT_SETTINGS, ...asObject(raw.settings) }
   }
 }
 
@@ -195,6 +212,33 @@ function reducer(data, action) {
       })
     }
 
+    case 'setSettings':
+      return stamp({ ...data, settings: { ...data.settings, ...action.patch } })
+
+    case 'addSlot':
+      return stamp({ ...data, schedule: [...data.schedule, { id: uid(), ...action.slot }] })
+    case 'updateSlot':
+      return stamp({
+        ...data,
+        schedule: data.schedule.map((s) => (s.id === action.id ? { ...s, ...action.patch } : s))
+      })
+    case 'deleteSlot':
+      return stamp({ ...data, schedule: data.schedule.filter((s) => s.id !== action.id) })
+
+    case 'toggleTopic': {
+      const prev = data.topicProgress[action.subjectId] || { done: [], total: 0 }
+      const done = prev.done.includes(action.topic)
+        ? prev.done.filter((t) => t !== action.topic)
+        : [...prev.done, action.topic]
+      return stamp({
+        ...data,
+        topicProgress: { ...data.topicProgress, [action.subjectId]: { done, total: action.total || prev.total } }
+      })
+    }
+
+    case 'reset':
+      return emptyData()
+
     case 'logPomodoro':
       return stamp({
         ...data,
@@ -334,6 +378,7 @@ export function StoreProvider({ children }) {
         a.remove()
         URL.revokeObjectURL(url)
       }, 0)
+      dispatch({ type: 'setSettings', patch: { lastExportAt: new Date().toISOString() } })
     } catch (e) {
       toast(`No se pudo exportar: ${e.message}`)
     }

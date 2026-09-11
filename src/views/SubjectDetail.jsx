@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useMemo, useState } from 'react'
 import { useStore } from '../lib/store.jsx'
-import { subjectById, BLOCKS, STATUS_META } from '../data/curriculum.js'
+import { subjectById, BLOCKS, STATUS_META, ectsOf } from '../data/curriculum.js'
+import { uniproGrade, neededFinal } from '../lib/stats.js'
 import { todayISO, formatShort, minutesLabel, relativeLabel, isOverdue } from '../lib/dates.js'
 import { pickDriveFiles, isPickerConfigured } from '../lib/driveSync.js'
 import Modal from '../components/Modal.jsx'
@@ -99,6 +100,7 @@ export default function SubjectDetail({ id, navigate }) {
           <span className="chip block" style={{ background: BLOCKS[subject.block].color }}>
             Año {subject.year} · {BLOCKS[subject.block].label}
           </span>
+          <span className="chip">{ectsOf(subject)} ECTS</span>
           {subject.english && <span className="chip english">EN INGLÉS</span>}
           {subject.note && <span className="chip">{subject.note}</span>}
           {subject.semestral && <span className="chip">Semestral</span>}
@@ -137,6 +139,8 @@ export default function SubjectDetail({ id, navigate }) {
           Flashcards ({deckSize})
         </button>
       </div>
+
+      <GradeCalc id={id} state={state} dispatch={dispatch} progress={data.topicProgress?.[id]} />
 
       <div className="tabs" role="tablist" aria-label="Secciones de la asignatura">
         {TABS.map((t) => (
@@ -324,6 +328,63 @@ export default function SubjectDetail({ id, navigate }) {
           }}
         />
       )}
+    </div>
+  )
+}
+
+function GradeCalc({ id, state, dispatch, progress }) {
+  const computed = uniproGrade(state.contGrade, state.examGrade)
+  const need = neededFinal(state.contGrade, 5)
+  const pct = progress && progress.total > 0 ? Math.round((progress.done.length / progress.total) * 100) : null
+  const set = (patch) => dispatch({ type: 'setSubject', id, patch })
+  return (
+    <div className="card calc" style={{ marginBottom: 18 }}>
+      <div className="calc-grid">
+        <div>
+          <div className="guide-label">Nota UNIPRO · 70 % continua + 30 % prueba final</div>
+          <div className="calc-inputs">
+            <div>
+              <label htmlFor="grade-cont">Continua</label>
+              <input id="grade-cont" type="text" inputMode="decimal" placeholder="0–10" value={state.contGrade ?? ''} onChange={(e) => set({ contGrade: e.target.value })} />
+            </div>
+            <div>
+              <label htmlFor="grade-exam">Prueba final</label>
+              <input id="grade-exam" type="text" inputMode="decimal" placeholder="0–10" value={state.examGrade ?? ''} onChange={(e) => set({ examGrade: e.target.value })} />
+            </div>
+            <div className="calc-result">
+              <div className="stat-lbl">Resultado</div>
+              <div className="stat-num" aria-live="polite">{computed != null ? computed.toFixed(2) : '—'}</div>
+            </div>
+          </div>
+          <div className="calc-hint">
+            {need != null && computed == null && (
+              need <= 0 ? (
+                <>Con esa continua ya tienes el 5 asegurado antes de la prueba final.</>
+              ) : need > 10 ? (
+                <>Con esa continua no llegas al 5 ni con un 10 en la prueba final: necesitas subir la continua.</>
+              ) : (
+                <>Para aprobar necesitas al menos un <strong>{need.toFixed(2)}</strong> en la prueba final{neededFinal(state.contGrade, 7) <= 10 && neededFinal(state.contGrade, 7) > 0 ? <>; para un 7, un <strong>{neededFinal(state.contGrade, 7).toFixed(2)}</strong></> : null}.</>
+              )
+            )}
+            {computed != null && (
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => set({ grade: computed.toFixed(2) })}>
+                Usar como nota final
+              </button>
+            )}
+            {need == null && computed == null && <span className="muted">Escribe tu nota de evaluación continua para saber qué necesitas en la prueba final.</span>}
+          </div>
+        </div>
+        {pct != null && (
+          <div className="calc-progress">
+            <div className="guide-label">Temario estudiado</div>
+            <div className="stat-num">{pct} %</div>
+            <div className="progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Temario estudiado">
+              <div style={{ width: `${pct}%` }} />
+            </div>
+            <div className="stat-lbl">{progress.done.length} de {progress.total} temas</div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

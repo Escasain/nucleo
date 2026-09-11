@@ -6,6 +6,11 @@ const FOCUSABLE =
 export default function Modal({ title, onClose, children }) {
   const boxRef = useRef(null)
   const titleId = useId()
+  // onClose suele ser una función nueva en cada render del padre; con un
+  // ref el efecto (foco inicial, trampa de tabulación) se monta una vez y
+  // el foco no salta cuando el padre se vuelve a renderizar.
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
     const previous = document.activeElement
@@ -18,7 +23,7 @@ export default function Modal({ title, onClose, children }) {
     const onKey = (e) => {
       if (e.key === 'Escape') {
         e.stopPropagation()
-        onClose()
+        onCloseRef.current()
         return
       }
       if (e.key !== 'Tab' || !box) return
@@ -44,7 +49,7 @@ export default function Modal({ title, onClose, children }) {
       document.body.style.overflow = prevOverflow
       if (previous && typeof previous.focus === 'function') previous.focus()
     }
-  }, [onClose])
+  }, [])
 
   return (
     <div
