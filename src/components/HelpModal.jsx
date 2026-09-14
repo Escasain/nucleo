@@ -4,7 +4,7 @@ import Modal from './Modal.jsx'
 const SHORTCUTS = [
   ['?', 'Esta ayuda'],
   ['Ctrl / ⌘ + K', 'Buscar en toda la app'],
-  ['G luego I / P / A / E / J', 'Ir a Inicio, Plan, Agenda, Estudio, Ajustes'],
+  ['G luego I / P / C / A / E / J', 'Ir a Inicio, Plan, Calendario, Agenda, Estudio, Ajustes'],
   ['Esc', 'Cerrar ventanas y menús']
 ]
 
@@ -30,6 +30,10 @@ export default function HelpModal({ onClose }) {
           <li>
             <strong>Estudio</strong>: flashcards con repaso espaciado (cajas Leitner) y pomodoro. Ambos suman a tu tiempo
             de estudio, al objetivo semanal y a la racha.
+          </li>
+          <li>
+            <strong>Calendario</strong>: el planificador reparte el temario pendiente entre los días que puedes
+            estudiar. Toca un día para ver en detalle qué toca, marcarlo como hecho o cambiar sus horas.
           </li>
           <li>
             <strong>Agenda</strong>: lista de entregas, calendario mensual y tu horario semanal fijo (lo que verás cada

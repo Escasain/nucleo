@@ -975,7 +975,8 @@ a.guide-res-title:hover { color: var(--pine); text-decoration: underline; }
   margin-top: 14px; border-top: 1px solid var(--linen-2); padding-top: 14px;
   display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;
 }
-.plan-dayedit h4 { font-family: var(--font-display); font-size: 16px; margin: 0; text-transform: capitalize; }
+.plan-dayedit h4 { font-family: var(--font-display); font-size: 16px; margin: 0; }
+.plan-dayedit h4::first-letter { text-transform: uppercase; }
 .plan-dayedit p { margin: 3px 0 0; font-size: 13px; }
 .plan-dayedit-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
@@ -1043,4 +1044,53 @@ a.guide-res-title:hover { color: var(--pine); text-decoration: underline; }
   .plan-stats { grid-template-columns: 1fr; }
   .plan-head { flex-direction: column; }
   .plan-weektotal { text-align: left; }
+}
+
+/* ---------- Detalle de un día del calendario ---------- */
+.plan-detail {
+  background: var(--paper);
+  border: 1px solid var(--pine);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin: 2px 0 10px;
+  box-shadow: var(--shadow);
+}
+.plan-detail-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.plan-detail-head h4 { font-family: var(--font-display); font-size: 17px; margin: 2px 0 0; }
+.plan-detail-head h4::first-letter { text-transform: uppercase; }
+
+/* Fechas largas («lunes, 14 de septiembre»): solo la primera letra en
+   mayúscula. `capitalize` pondría también «De Septiembre». */
+.cap-first::first-letter { text-transform: uppercase; }
+.plan-detail-head p { margin: 3px 0 0; font-size: 12.5px; }
+.plan-detail-close { font-size: 15px; line-height: 1; flex-shrink: 0; }
+
+.plan-detail-exams { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.plan-detail-exam {
+  border: 1px solid; border-left-width: 4px; border-radius: var(--radius-sm);
+  padding: 8px 12px; display: flex; flex-direction: column; gap: 2px; font-size: 13.5px;
+}
+.plan-detail-exam span { font-size: 12.5px; }
+
+.plan-detail-list { list-style: none; margin: 12px 0 0; padding: 0; }
+.plan-detail-item {
+  display: flex; align-items: flex-start; gap: 11px;
+  padding: 10px 0; border-bottom: 1px solid var(--linen-2);
+}
+.plan-detail-item:last-child { border-bottom: none; }
+.plan-detail-item .checkbox { margin-top: 2px; }
+.plan-detail-h {
+  font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--pine);
+  font-variant-numeric: tabular-nums; min-width: 46px; flex-shrink: 0; margin-top: 1px;
+}
+.plan-detail-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.plan-detail-title { font-size: 14px; font-weight: 500; line-height: 1.35; }
+.plan-detail-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; }
+.plan-detail-meta .plan-linkname { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; font-size: 12.5px; }
+.plan-detail-empty { margin: 12px 0 0; font-size: 13.5px; }
+.plan-detail .plan-dayedit-actions { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--linen-2); }
+
+@media (max-width: 860px) {
+  .plan-detail-item { flex-wrap: wrap; }
+  .plan-detail-body { flex-basis: 100%; margin-left: 31px; }
 }
