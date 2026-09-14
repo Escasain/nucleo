@@ -146,15 +146,45 @@ function addMinutes(dateISO, hhmm, minutes) {
   return d
 }
 
+const toMin = (hhmm) => {
+  const [h, m] = hhmm.split(':').map(Number)
+  return h * 60 + m
+}
+
 /** A qué hora empieza el estudio ese día. Manda tu horario semanal. */
 export function startTimeFor(dateISO, planner, weeklySchedule) {
+  return dayWindows(dateISO, planner, weeklySchedule)[0].start
+}
+
+/**
+ * Huecos reales de ese día, en orden.
+ *
+ * Si tienes franjas en el horario semanal se usan todas, no solo la
+ * primera: con «lunes 09:00-10:00» y «lunes 18:00-19:00» la segunda
+ * sesión va a las 18:00, no encadenada a las 10:00. Si no hay franjas
+ * —o si ese día llevas más horas de las que suman— el último hueco se
+ * queda abierto y el resto se encadena a partir de él.
+ */
+export function dayWindows(dateISO, planner, weeklySchedule, plannedMinutes = 0) {
   const i = dow(parseISO(dateISO))
   const slots = (weeklySchedule || [])
-    .filter((s) => Number(s.weekday) === i && /^\d{2}:\d{2}$/.test(s.start || ''))
+    .filter(
+      (s) =>
+        Number(s.weekday) === i && /^\d{2}:\d{2}$/.test(s.start || '') && /^\d{2}:\d{2}$/.test(s.end || '')
+    )
+    .map((s) => ({ start: s.start, minutes: toMin(s.end) - toMin(s.start) }))
+    .filter((s) => s.minutes > 0)
     .sort((a, b) => a.start.localeCompare(b.start))
-  if (slots.length) return slots[0].start
-  const t = planner.startTimes?.[i]
-  return /^\d{2}:\d{2}$/.test(t || '') ? t : '18:00'
+
+  if (!slots.length) {
+    const t = planner.startTimes?.[i]
+    return [{ start: /^\d{2}:\d{2}$/.test(t || '') ? t : '18:00', minutes: Infinity }]
+  }
+  // Un día ajustado a mano puede llevar más horas de las que suman las
+  // franjas: el último hueco absorbe lo que sobre.
+  const total = slots.reduce((a, w) => a + w.minutes, 0)
+  if (plannedMinutes > total) slots[slots.length - 1] = { ...slots[slots.length - 1], minutes: Infinity }
+  return slots
 }
 
 /**
@@ -164,33 +194,60 @@ export function startTimeFor(dateISO, planner, weeklySchedule) {
 export function buildEvents({ days, subjects, planner, weeklySchedule, guides, appUrl, includeExams = true }) {
   const events = []
   for (const day of days) {
-    let offset = 0
     let seq = 0
-    const start = startTimeFor(day.key, planner, weeklySchedule)
+    const plannedMinutes = day.items.reduce((a, i) => a + Math.round(i.h * 60), 0)
+    const windows = dayWindows(day.key, planner, weeklySchedule, plannedMinutes)
+    let wi = 0
+    let used = 0
 
     for (const item of day.items) {
       const subject = subjects.find((s) => s.id === item.subjectId)
       if (!subject) continue
-      const mins = Math.round(item.h * 60)
-      const from = addMinutes(day.key, start, offset)
-      const to = addMinutes(day.key, start, offset + mins)
-      offset += mins
-      // El índice evita colisiones: una unidad puede volver a aparecer
-      // el mismo día en bloques no contiguos, y dos eventos con el
-      // mismo UID se pisarían al importar.
-      seq += 1
-      events.push({
-        uid: `nucleo-${item.subjectId}-${item.unitId}-${day.key}-${seq}`,
-        start: from,
-        end: to,
-        allDay: false,
-        summary: `${subject.short} · ${item.title}`,
-        description: describeBlock({
-          item,
-          subject,
-          guide: guides?.[item.subjectId],
-          dayKey: day.key,
-          appUrl
+      const description = describeBlock({
+        item,
+        subject,
+        guide: guides?.[item.subjectId],
+        dayKey: day.key,
+        appUrl
+      })
+
+      // Una sesión puede no caber entera en un hueco: se parte y sigue
+      // en el siguiente, en vez de desbordarse fuera de tu horario.
+      let left = Math.round(item.h * 60)
+      const parts = []
+      while (left > 0 && wi < windows.length) {
+        const w = windows[wi]
+        const free = w.minutes - used
+        if (free <= 0) {
+          wi += 1
+          used = 0
+          continue
+        }
+        const take = Math.min(free, left)
+        parts.push({ start: addMinutes(day.key, w.start, used), end: addMinutes(day.key, w.start, used + take) })
+        used += take
+        left -= take
+        if (used >= w.minutes) {
+          wi += 1
+          used = 0
+        }
+      }
+
+      parts.forEach((part, idx) => {
+        // El índice evita colisiones: una unidad puede volver a
+        // aparecer el mismo día en bloques no contiguos, y dos eventos
+        // con el mismo UID se pisarían al importar.
+        seq += 1
+        events.push({
+          uid: `nucleo-${item.subjectId}-${item.unitId}-${day.key}-${seq}`,
+          start: part.start,
+          end: part.end,
+          allDay: false,
+          summary:
+            parts.length > 1
+              ? `${subject.short} · ${item.title} (${idx + 1} de ${parts.length})`
+              : `${subject.short} · ${item.title}`,
+          description
         })
       })
     }
@@ -216,6 +273,12 @@ export function buildEvents({ days, subjects, planner, weeklySchedule, guides, a
 const pad = (n) => String(n).padStart(2, '0')
 const stampLocal = (d) =>
   `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`
+// RFC 5545 §3.8.7.2: DTSTAMP va siempre en UTC. Las horas de estudio,
+// en cambio, se quedan en hora local flotante a propósito.
+const stampUTC = (d) =>
+  `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(
+    d.getUTCMinutes()
+  )}${pad(d.getUTCSeconds())}Z`
 const stampDate = (d) => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`
 
 function esc(s) {
@@ -258,7 +321,7 @@ export function toICS(events, { name = 'NÚCLEO · Estudio', alarmMinutes = 10 }
     'METHOD:PUBLISH',
     `X-WR-CALNAME:${esc(name)}`
   ]
-  const now = stampLocal(new Date())
+  const now = stampUTC(new Date())
   for (const e of events) {
     lines.push('BEGIN:VEVENT')
     lines.push(`UID:${esc(e.uid)}`)
