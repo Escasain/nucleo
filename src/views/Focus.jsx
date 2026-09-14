@@ -281,11 +281,17 @@ export default function Focus({ subjectId, unitId, navigate }) {
           </div>
         ) : (
           <div className="actions" style={{ justifyContent: 'center' }}>
-            <button type="button" className="btn btn-ghost" onClick={() => navigate(`/asignatura/${subjectId}`)}>
-              Ver la asignatura
-            </button>
-            <button type="button" className="btn btn-primary" onClick={() => navigate('/calendario')}>
+            <button type="button" className="btn btn-ghost" onClick={() => navigate('/calendario')}>
               Volver al calendario
+            </button>
+            {/* Practicar justo después de estudiar es cuando más renta:
+                acabas de leerlo y todavía crees que lo sabes. */}
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => navigate(`/asignatura/${subjectId}/practica`)}
+            >
+              Practicar lo que sé
             </button>
           </div>
         )}
