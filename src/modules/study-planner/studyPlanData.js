@@ -88,6 +88,10 @@ export const STUDY_PLANS = {
   // una estimación por peso, calibrada para unas 64 h como en Álgebra,
   // que también son 6 ECTS.
   //
+  // Fechas confirmadas por Carlos: la asignatura va del 9 de noviembre
+  // al 23 de diciembre de 2026, o sea el bloque de noviembre, no el de
+  // septiembre. No se solapa con Álgebra, que cierra el 6-8 de nov.
+  //
   // Cuando tengas la guía oficial, sustituye títulos y horas aquí: no
   // hay que tocar ningún componente. La interfaz avisa de que el plan
   // es provisional mientras siga esta marca.
@@ -95,9 +99,9 @@ export const STUDY_PLANS = {
   'tec-comp': {
     short: 'TC',
     color: 'var(--plan-2)',
-    start: '2026-09-15',
-    examHint: '2026-11-06',
-    examLabel: 'Prueba final · fecha por confirmar',
+    start: '2026-11-09',
+    examHint: '2026-12-23',
+    examLabel: 'Examen por confirmar',
     provisional: true,
     units: [
       { id: 'b1', t: 'Base · Sistemas de numeración y cambios de base', h: 1.5, kind: 'base' },

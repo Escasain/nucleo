@@ -69,7 +69,21 @@ export default function SubjectPlan({ subjectId, navigate }) {
 
   const m = schedule.meta[subjectId]
   const doneSet = new Set(state.done[subjectId] || [])
-  const daysLeft = subject.exam ? daysBetween(today, parseISO(subject.exam)) : null
+
+  // Una asignatura puede empezar más adelante (TC arranca el 9 de nov).
+  // Entonces el margen no son los días que faltan para el examen, sino
+  // los que dura la asignatura: decirle «quedan 100 días» cuando solo
+  // puede estudiarla 45 sería engañarle.
+  const examDate = subject.exam ? parseISO(subject.exam) : null
+  const startDate = subject.start ? parseISO(subject.start) : null
+  const notStarted = startDate != null && daysBetween(today, startDate) > 0
+  const daysLeft = examDate ? daysBetween(notStarted ? startDate : today, examDate) : null
+  const windowNote =
+    daysLeft == null
+      ? ''
+      : notStarted
+        ? ` (empieza el ${formatShort(subject.start)}: ${daysLeft} días de margen)`
+        : ` (quedan ${daysLeft} días)`
 
   // Agrupa las unidades por la semana en la que caen.
   const groups = []
@@ -97,6 +111,13 @@ export default function SubjectPlan({ subjectId, navigate }) {
         </div>
       )}
 
+      {startDate && examDate && (
+        <p className="plan-sub">
+          {notStarted ? 'Empieza' : 'Empezó'} el {formatShort(subject.start)} y termina el {formatShort(subject.exam)}
+          {subject.examLabel ? ` · ${subject.examLabel}` : ''}.
+        </p>
+      )}
+
       <div className="card plan-stats">
         <div>
           <strong>{hoursLabel(m.totalHours)}</strong>
@@ -121,8 +142,7 @@ export default function SubjectPlan({ subjectId, navigate }) {
       {m.deficit > 0 && (
         <p className="plan-warn plan-warn-block">
           Faltan {hoursLabel(m.deficit)} para cubrir el temario antes de la prueba
-          {daysLeft != null ? ` (quedan ${daysLeft} días)` : ''}. Sube tus horas, recorta estimaciones o marca como
-          hecho lo que ya domines.
+          {windowNote}. Sube tus horas, recorta estimaciones o marca como hecho lo que ya domines.
         </p>
       )}
 
