@@ -90,8 +90,9 @@ export default function SubjectPlan({ subjectId, navigate }) {
       {subject.provisional && (
         <div className="banner" role="status">
           <div>
-            <strong>Plan provisional.</strong> Los temas y las horas de esta asignatura están inventados para poder
-            repartir el tiempo. Sustitúyelos por el temario real cuando lo tengas.
+            <strong>Plan provisional.</strong> El temario está reconstruido a partir del programa habitual de la
+            asignatura y las horas son una estimación por peso, no salen de la guía docente oficial. Ajústalo cuando
+            tengas la guía.
           </div>
         </div>
       )}
