@@ -4,7 +4,7 @@ import Modal from './Modal.jsx'
 const SHORTCUTS = [
   ['?', 'Esta ayuda'],
   ['Ctrl / ⌘ + K', 'Buscar en toda la app'],
-  ['G luego I / P / C / A / E / J', 'Ir a Inicio, Plan, Calendario, Agenda, Estudio, Ajustes'],
+  ['G luego I / P / C / A / E / R / J', 'Ir a Inicio, Plan, Calendario, Agenda, Estudio, Progreso, Ajustes'],
   ['Esc', 'Cerrar ventanas y menús']
 ]
 
@@ -39,6 +39,15 @@ export default function HelpModal({ onClose }) {
           <li>
             <strong>Agenda</strong>: lista de entregas, calendario mensual y tu horario semanal fijo (lo que verás cada
             día en Inicio).
+          </li>
+          <li>
+            <strong>Sesión de estudio</strong>: el botón «Estudiar» de cada bloque del calendario abre la unidad con su
+            material y un cronómetro. Al terminar registra los minutos reales atados a esa unidad.
+          </li>
+          <li>
+            <strong>Progreso</strong>: compara el plan con la realidad. Cuánto tardas de verdad frente a lo estimado
+            (y un botón para corregir el plan entero a tu ritmo), cuántas de las horas previstas cumples, y si a tu
+            ritmo real llegas a cada examen.
           </li>
         </ol>
 

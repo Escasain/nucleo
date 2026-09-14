@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from '../lib/store.jsx'
 import { CURRICULUM } from '../data/curriculum.js'
-import { IconBook, IconCalendar, IconLink, IconExternal } from './Icons.jsx'
+import { STUDY_PLANS } from '../modules/study-planner/studyPlanData.js'
+import { IconBook, IconCalendar, IconLink, IconExternal, IconPlay } from './Icons.jsx'
 
 function norm(s) {
   return String(s || '')
@@ -59,6 +60,22 @@ export default function SearchModal({ onClose, navigate }) {
     for (const s of CURRICULUM) {
       if (norm(s.name).includes(t) || norm(s.id).includes(t)) {
         out.push({ kind: 'Asignatura', title: s.name, sub: `Año ${s.year}`, path: `/asignatura/${s.id}`, Icon: IconBook })
+      }
+    }
+    // Unidades del temario: llevan directamente a estudiarlas, con su
+    // material y el cronómetro. Las ya hechas no estorban en la lista.
+    for (const [sid, plan] of Object.entries(STUDY_PLANS)) {
+      const s = CURRICULUM.find((x) => x.id === sid)
+      const done = new Set((data.planner?.done || {})[sid] || [])
+      for (const u of plan.units || []) {
+        if (done.has(u.id) || !norm(u.t).includes(t)) continue
+        out.push({
+          kind: 'Estudiar',
+          title: u.t,
+          sub: s?.name || sid,
+          path: `/sesion/${sid}/${u.id}`,
+          Icon: IconPlay
+        })
       }
     }
     for (const task of data.tasks) {

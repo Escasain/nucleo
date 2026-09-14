@@ -176,6 +176,27 @@ export function PlannerProvider({ children }) {
         patch({ hourOverrides: o })
       },
 
+      /**
+       * Factor de ritmo de una asignatura. Se guarda aparte de los
+       * ajustes manuales por unidad: así se puede quitar sin borrar lo
+       * que hayas afinado tú a mano, y nada aparece como «ajustado por
+       * ti» cuando lo ha puesto la calibración.
+       */
+      setPaceFactor: (sid, factor) => {
+        const next = { ...(planner.paceFactor || {}) }
+        if (factor == null || factor === 1) delete next[sid]
+        else next[sid] = +Math.max(0.4, Math.min(3, Number(factor) || 1)).toFixed(2)
+        patch({ paceFactor: next })
+      },
+
+      /** Marca una unidad como hecha sin alternar (para el fin de sesión). */
+      markDone: (sid, uid) => {
+        const cur = new Set(planner.done[sid] || [])
+        if (cur.has(uid)) return
+        cur.add(uid)
+        patch({ done: { ...planner.done, [sid]: [...cur] } })
+      },
+
       reset: () => patch({ ...DEFAULT_PLANNER })
     }),
     [today, subjects, schedule, planner, weekHours, startTimes, usingSchedule, seeded, data.schedule, patch]

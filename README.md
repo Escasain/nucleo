@@ -16,6 +16,8 @@ La build usa rutas relativas (`base: './'` en `vite.config.js`), así que el mis
 - **Herramientas de estudio** — flashcards con repaso espaciado (sistema Leitner) por asignatura y temporizador pomodoro que registra tus minutos de estudio.
 - **Tus datos, en tu Drive** — todo se guarda como `nucleo-data.json` en la carpeta `NÚCLEO` de tu Google Drive, con caché local para funcionar offline y exportación/importación JSON como copia de seguridad.
 - **Calendario de estudio** — reparte el temario pendiente entre los días que puedes estudiar, hasta la fecha del examen. Ajustas las horas de cada día y el calendario se recoloca al instante; marcas una unidad como hecha y libera su tiempo para el resto. Si el temario no cabe antes de la prueba, te dice cuántas horas faltan por asignatura. Resumen en Inicio, calendario completo en su propia pestaña **Calendario** del menú, y el temario con sus fechas en cada asignatura › Calendario. Al tocar un día se abre su detalle: qué bloques tocan, de qué asignatura y de qué tipo, con sus horas, para marcarlos como hechos o cambiar el tiempo de ese día.
+- **Sesión de estudio enfocada** — desde cualquier bloque del calendario (o buscando la unidad con Ctrl+K) se abre una pantalla con lo único que hace falta al sentarse: qué unidad toca, los temas de la guía que cubre, el material que encaja con ella y un cronómetro. Al terminar registra los minutos reales **atados a esa unidad del temario** y, si quieres, la marca como hecha.
+- **Progreso: el plan contra la realidad** — las horas que te propusiste frente a las que registraste, semana a semana; cuánto tardas de verdad en cada unidad frente a lo estimado, con un botón para **corregir el plan entero a tu ritmo** (reversible, y sin pisar los ajustes que hayas hecho a mano); si a tu ritmo real llegas a cada examen o cuántas horas te faltarían; y un mapa de calor de un año de estudio.
 - **Panel «Hoy»** — bloque bimestral en curso, horario de hoy, tarjetas por repasar, entregas próximas y atrasadas, objetivo semanal y racha de días estudiando.
 - **Horario semanal y calendario mensual** — bloques fijos de estudio que aparecen cada día en Inicio; vista de mes con evaluaciones y sesiones.
 - **Progreso del temario** — marca cada tema estudiado desde la guía; el porcentaje se ve en la asignatura, en el plan y en Inicio.
@@ -78,10 +80,11 @@ src/
   lib/
     store.jsx          ← estado global + persistencia (local y Drive)
     stats.js           ← minutos, rachas, expediente, nota UNIPRO
+    calibration.js     ← plan contra realidad: calibración, adherencia, ritmo, mapa de calor
     driveSync.js       ← OAuth, lectura/escritura en Drive, Picker
     router.jsx         ← rutas por hash
     dates.js
-  views/               ← Dashboard, Plan, SubjectDetail, Agenda, Study, Settings
+  views/               ← Dashboard, Plan, SubjectDetail, Agenda, Study, Progress, Focus, Settings
   components/          ← Sidebar, Modal, Checkbox, Icons, StudyGuide (carga bajo demanda), SearchModal, HelpModal
   modules/
     study-planner/     ← calendario de estudio

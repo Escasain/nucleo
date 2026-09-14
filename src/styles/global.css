@@ -1125,3 +1125,128 @@ a.guide-res-title:hover { color: var(--pine); text-decoration: underline; }
   .plan-export-stats { grid-template-columns: 1fr; gap: 8px; }
   .plan-times-row { flex-direction: column; align-items: stretch; }
 }
+
+/* ============================================================
+   Sesión de estudio enfocada
+   ============================================================ */
+.focus-subject {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+.focus-timer { text-align: center; }
+.focus-time {
+  font-family: var(--font-display);
+  font-size: clamp(44px, 13vw, 68px);
+  font-weight: 700;
+  color: var(--pine);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+.focus-timer-sub {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--ink-faint);
+}
+.focus-timer-sub svg { width: 14px; height: 14px; }
+.focus-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+.focus-topics { margin: 8px 0 0; padding-left: 20px; line-height: 1.6; color: var(--ink-soft); font-size: 14px; }
+.focus-topics li { margin-bottom: 4px; }
+.focus-done { max-width: 520px; margin: 6vh auto 0; text-align: center; }
+.focus-done h2 { font-family: var(--font-display); margin: 12px 0 6px; }
+.focus-done-mark {
+  width: 46px;
+  height: 46px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: var(--pine-soft);
+  color: var(--pine);
+  display: grid;
+  place-items: center;
+}
+.focus-done-mark svg { width: 24px; height: 24px; }
+
+.plan-detail-go { flex-shrink: 0; }
+.plan-detail-go svg { width: 13px; height: 13px; }
+.plan-unit-go svg { width: 14px; height: 14px; }
+
+/* ============================================================
+   Progreso
+   ============================================================ */
+
+/* --- previstas vs hechas --- */
+.adh { display: flex; align-items: flex-end; gap: 10px; height: 110px; margin: 14px 0 0; padding: 0; list-style: none; }
+.adh li { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; height: 100%; }
+.adh-bars { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 3px; }
+.adh-planned,
+.adh-real { width: 42%; max-width: 20px; border-radius: 3px 3px 0 0; min-height: 2px; }
+.adh-planned { background: var(--linen-3); }
+.adh-real { background: var(--pine); }
+.adh-lbl { margin-top: 6px; font-size: 10.5px; color: var(--ink-faint); white-space: nowrap; }
+
+/* --- calibración --- */
+.cal-list { list-style: none; margin: 12px 0 0; padding: 0; }
+.cal-item { padding: 12px 0; border-top: 1px solid var(--linen-2); }
+.cal-item:first-child { border-top: none; padding-top: 4px; }
+.cal-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cal-badge { font-size: 11.5px; color: var(--ink-faint); margin-left: auto; }
+.cal-line { margin: 6px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--ink-soft); }
+.cal-line .is-deficit { color: var(--st-suspensa); }
+.cal-apply { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.cal-apply .guide-fine { margin: 0; flex: 1; min-width: 180px; }
+.cal-pace {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-top: 10px;
+  padding: 8px 11px;
+  border: 1px solid var(--clay);
+  background: var(--clay-soft);
+  color: var(--ink);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.cal-pace.is-ok { border-color: var(--moss); background: var(--moss-soft); }
+.cal-pace-detail { margin-top: 8px; }
+
+/* --- mapa de calor --- */
+.heat-scroll { overflow-x: auto; padding-bottom: 4px; margin-top: 12px; }
+.heat-inner { display: inline-block; min-width: 100%; }
+.heat { display: grid; gap: 3px; }
+.heat-week { display: grid; grid-template-rows: repeat(7, 11px); gap: 3px; }
+.heat-cell { width: 11px; height: 11px; border-radius: 2px; background: var(--linen-2); display: block; }
+.heat-cell.is-empty { background: transparent; }
+.heat-cell.l1 { background: var(--pine-soft); }
+.heat-cell.l2 { background: #bfd0bb; }
+.heat-cell.l3 { background: var(--moss); }
+.heat-cell.l4 { background: var(--pine); }
+.heat-months { display: grid; gap: 3px; font-size: 10.5px; color: var(--ink-faint); margin-bottom: 4px; height: 14px; }
+.heat-months span { grid-row: 1; white-space: nowrap; }
+.heat-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-end;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+@media (max-width: 560px) {
+  .focus-actions .btn { flex: 1 1 auto; }
+  .cal-badge { margin-left: 0; width: 100%; }
+  .adh { gap: 6px; }
+}
+.cal-head .plan-linkname { display: inline-flex; align-items: center; gap: 7px; }

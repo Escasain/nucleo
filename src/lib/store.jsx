@@ -34,7 +34,12 @@ export const DEFAULT_PLANNER = {
   // por la tarde, el fin de semana por la mañana. Solo se usa para
   // exportar al calendario: el reparto trabaja con horas, no con horas
   // del día. Si tienes una franja en el horario semanal, manda esa.
-  startTimes: ['18:00', '18:00', '18:00', '18:00', '18:00', '10:00', '10:00']
+  startTimes: ['18:00', '18:00', '18:00', '18:00', '18:00', '10:00', '10:00'],
+  // Factor de ritmo por asignatura: cuánto te cuestan de verdad las
+  // unidades frente a lo estimado. 1 = la estimación acierta. Lo
+  // calcula «Progreso» a partir de las sesiones cronometradas y lo
+  // aplica unitHours() sobre la estimación original del temario.
+  paceFactor: {}
 }
 
 export function emptyData() {
@@ -117,7 +122,12 @@ function normalizePlanner(raw) {
     Array.isArray(p.startTimes) && p.startTimes.length === 7
       ? p.startTimes.map((t, i) => (/^\d{2}:\d{2}$/.test(t) ? t : DEFAULT_PLANNER.startTimes[i]))
       : [...DEFAULT_PLANNER.startTimes]
-  return { weekHours: hours, exceptions, done, hourOverrides, startTimes }
+  const paceFactor = {}
+  for (const [k, v] of Object.entries(asObject(p.paceFactor))) {
+    const n = Number(v)
+    if (Number.isFinite(n) && n > 0) paceFactor[k] = +Math.max(0.4, Math.min(3, n)).toFixed(2)
+  }
+  return { weekHours: hours, exceptions, done, hourOverrides, startTimes, paceFactor }
 }
 
 export function clampHours(value, min, max, fallback) {

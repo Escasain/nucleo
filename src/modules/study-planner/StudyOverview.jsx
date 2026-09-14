@@ -10,6 +10,7 @@ import { toISO, parseISO, formatLong } from '../../lib/dates.js'
 import { STUDY_PLANS, UNIT_KINDS } from './studyPlanData.js'
 import { CURRICULUM } from '../../data/curriculum.js'
 import Checkbox from '../../components/Checkbox.jsx'
+import { IconPlay } from '../../components/Icons.jsx'
 import ExportCalendar from './ExportCalendar.jsx'
 
 const MONTHS_SHORT = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
@@ -209,6 +210,17 @@ function DayDetail({ day, onClose, navigate }) {
                     <i className={`plan-kind ${kind.className}`}>{kind.label}</i>
                   </span>
                 </div>
+                {!isDone && (
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm plan-detail-go"
+                    onClick={() => navigate(`/sesion/${it.subjectId}/${it.unitId}`)}
+                    title="Abrir la sesión con el material y el cronómetro"
+                  >
+                    <IconPlay aria-hidden="true" />
+                    Estudiar
+                  </button>
+                )}
               </li>
             )
           })}
