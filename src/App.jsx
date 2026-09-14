@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { StoreProvider, useStore } from './lib/store.jsx'
+import { PlannerProvider } from './modules/study-planner/PlannerProvider.jsx'
 import { useRoute } from './lib/router.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import SearchModal from './components/SearchModal.jsx'
@@ -126,7 +127,9 @@ function Shell() {
 export default function App() {
   return (
     <StoreProvider>
-      <Shell />
+      <PlannerProvider>
+        <Shell />
+      </PlannerProvider>
     </StoreProvider>
   )
 }

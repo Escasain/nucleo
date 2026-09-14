@@ -218,7 +218,10 @@ function StudentKit() {
 
 function Deck({ subjectId }) {
   const { data, dispatch } = useStore()
-  const deck = Array.isArray(data.decks[subjectId]) ? data.decks[subjectId] : []
+  const deck = useMemo(
+    () => (Array.isArray(data.decks[subjectId]) ? data.decks[subjectId] : []),
+    [data.decks, subjectId]
+  )
   const [mode, setMode] = useState('repaso') // 'repaso' | 'gestionar'
   const [addModal, setAddModal] = useState(false)
   const [flipped, setFlipped] = useState(false)
@@ -230,10 +233,11 @@ function Deck({ subjectId }) {
       .sort((a, b) => (a.reviewedAt || 0) - (b.reviewedAt || 0))
   }, [deck])
   const current = due[0] || null
+  const currentId = current ? current.id : null
 
   useEffect(() => {
     setFlipped(false)
-  }, [current ? current.id : null])
+  }, [currentId])
 
   function review(quality) {
     if (!current) return

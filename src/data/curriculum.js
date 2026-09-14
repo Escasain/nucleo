@@ -130,7 +130,6 @@ export function planYearOf(date = new Date()) {
 // upcoming=true.
 const BLOCK_ORDER = ['sep', 'nov', 'mar', 'may']
 export function blockOf(date = new Date()) {
-  const m = date.getMonth()
   const { start } = academicYearOf(date)
   const ranges = [
     { id: 'sep', from: new Date(start, 8, 1), to: new Date(start, 10, 0) },
