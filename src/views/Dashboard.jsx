@@ -300,6 +300,8 @@ export default function Dashboard({ navigate }) {
             </div>
           </div>
 
+          <OpenDoubts navigate={navigate} />
+
           <div className="card">
             <h3>Próximas clases y sesiones</h3>
             <div className="row-list">
@@ -390,6 +392,51 @@ export default function Dashboard({ navigate }) {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------- dudas abiertas */
+
+/**
+ * Las dudas de quien estudia solo se evaporan si no se ven. Aquí están
+ * las últimas, con su asignatura, a un clic de resolverlas.
+ */
+function OpenDoubts({ navigate }) {
+  const { data } = useStore()
+  const open = useMemo(
+    () => (data.understanding || []).filter((n) => n.type === 'duda' && !n.resolved).slice(-4).reverse(),
+    [data.understanding]
+  )
+  if (open.length === 0) return null
+
+  return (
+    <div className="card">
+      <h3 style={{ marginBottom: 2 }}>Dudas sin resolver</h3>
+      <p className="guide-summary" style={{ marginTop: 0 }}>
+        Apuntadas mientras estudiabas. Resolverlas vale más que avanzar temario encima de un agujero.
+      </p>
+      <div className="row-list">
+        {open.map((n) => {
+          const s = CURRICULUM.find((x) => x.id === n.subjectId)
+          return (
+            <button
+              key={n.id}
+              type="button"
+              className="row-item doubt-row"
+              onClick={() => navigate(`/asignatura/${n.subjectId}/notas`)}
+            >
+              <div className="grow">
+                <div className="title">{n.text}</div>
+                <div className="meta">
+                  {s?.name || n.subjectId}
+                  {n.unitTitle ? ` · ${n.unitTitle}` : ''}
+                </div>
+              </div>
+            </button>
+          )
+        })}
       </div>
     </div>
   )

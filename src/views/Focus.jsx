@@ -37,6 +37,9 @@ export default function Focus({ subjectId, unitId, navigate }) {
   const [seconds, setSeconds] = useState(0)
   const [running, setRunning] = useState(false)
   const [saved, setSaved] = useState(null)
+  const [explain, setExplain] = useState('')
+  const [doubt, setDoubt] = useState('')
+  const [reflected, setReflected] = useState(false)
   const nextBreak = useRef(BREAK_EVERY_MIN * 60)
   // El tiempo sale del reloj, no de contar tics: el navegador frena los
   // temporizadores de una pestaña en segundo plano y los suspende al
@@ -223,6 +226,60 @@ export default function Focus({ subjectId, unitId, navigate }) {
               plan a tu ritmo real.
             </p>
           )}
+        </div>
+
+        {!reflected ? (
+          <div className="card focus-reflect">
+            <h3>Antes de cerrar: explícatelo</h3>
+            <p className="guide-summary" style={{ marginTop: 0 }}>
+              Contarlo con tus palabras es lo que separa haber leído un tema de haberlo entendido. Si te atascas al
+              escribirlo, ahí está el agujero — y ese es justo el valor del ejercicio.
+            </p>
+            <div className="field">
+              <label htmlFor="focus-explain">¿Qué has entendido? Explícalo como si se lo contaras a alguien</label>
+              <textarea
+                id="focus-explain"
+                rows={4}
+                value={explain}
+                onChange={(e) => setExplain(e.target.value)}
+                placeholder="La idea central es… y sirve para…"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="focus-doubt">¿Qué te ha quedado a medias?</label>
+              <textarea
+                id="focus-doubt"
+                rows={2}
+                value={doubt}
+                onChange={(e) => setDoubt(e.target.value)}
+                placeholder="No acabo de ver por qué…"
+              />
+            </div>
+            <div className="actions">
+              <button type="button" className="btn btn-ghost" onClick={() => setReflected(true)}>
+                Ahora no
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={!explain.trim() && !doubt.trim()}
+                onClick={() => {
+                  const base = { subjectId, unitId, unitTitle: unit.t }
+                  if (explain.trim()) {
+                    dispatch({ type: 'addUnderstanding', note: { ...base, type: 'explicacion', text: explain.trim() } })
+                  }
+                  if (doubt.trim()) {
+                    dispatch({ type: 'addUnderstanding', note: { ...base, type: 'duda', text: doubt.trim() } })
+                  }
+                  toast(doubt.trim() ? 'Guardado. La duda queda pendiente en la asignatura.' : 'Guardado')
+                  setReflected(true)
+                }}
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        ) : (
           <div className="actions" style={{ justifyContent: 'center' }}>
             <button type="button" className="btn btn-ghost" onClick={() => navigate(`/asignatura/${subjectId}`)}>
               Ver la asignatura
@@ -231,7 +288,7 @@ export default function Focus({ subjectId, unitId, navigate }) {
               Volver al calendario
             </button>
           </div>
-        </div>
+        )}
       </div>
     )
   }

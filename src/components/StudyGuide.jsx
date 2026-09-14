@@ -3,6 +3,7 @@ import { useStore } from '../lib/store.jsx'
 import { guideFor, RESOURCE_TYPES, RESOURCE_GROUPS, UNIPRO_EVALUATION } from '../data/guide/index.js'
 import { IconExternal, IconPlus, IconCheck, IconPrint } from './Icons.jsx'
 import Checkbox from './Checkbox.jsx'
+import KeyConcepts from './KeyConcepts.jsx'
 
 const TYPE_ICON = {
   teoria: '📄',
@@ -161,6 +162,8 @@ export default function StudyGuide({ subjectId }) {
           </ul>
         </div>
       ))}
+
+      <KeyConcepts subjectId={subjectId} />
 
       <div className="card">
         <h3>Laboratorio y entorno de prácticas</h3>

@@ -49,6 +49,15 @@ export default function HelpModal({ onClose }) {
             (y un botón para corregir el plan entero a tu ritmo), cuántas de las horas previstas cumples, y si a tu
             ritmo real llegas a cada examen.
           </li>
+          <li>
+            <strong>Conceptos clave</strong> (dentro de la guía de cada asignatura): el vocabulario que bloquea, con
+            un botón para convertir cada uno en tarjeta de repaso. Y «dónde se cae todo el mundo», los errores que se
+            repiten examen tras examen.
+          </li>
+          <li>
+            <strong>Dudas</strong>: lo que no te queda claro se apunta al cerrar una sesión de estudio o a mano desde
+            la asignatura, aparece en Inicio hasta que la resuelves, y al resolverla se convierte en tarjeta.
+          </li>
         </ol>
 
         <h4>La nota en UNIPRO</h4>
