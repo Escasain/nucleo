@@ -45,6 +45,11 @@ export default function Practice({ subjectId }) {
   }
 
   const visible = problems.filter((pr) => {
+    // Marcar un fallo le da un resultado al problema, y desde «Sin
+    // hacer» eso lo sacaría del filtro en el mismo render: la fila
+    // desaparecería antes de poder apuntar qué te faltaba. El que estás
+    // contestando se queda hasta que termines con él.
+    if (pr.id === failing) return true
     const a = attempts[attemptKey(subjectId, pr.id)]
     if (filter === 'pendientes') return !a || !a.last
     if (filter === 'fallados') return a && a.last === 'fail'
@@ -104,18 +109,18 @@ export default function Practice({ subjectId }) {
           </div>
           <div>
             <div className="stat-num">{stats.rate == null ? '—' : `${Math.round(stats.rate * 100)} %`}</div>
-            <div className="stat-lbl">los tenías a la primera</div>
+            <div className="stat-lbl">los sacaste a la primera</div>
           </div>
           <div>
-            <div className="stat-num">{stats.done - stats.ok}</div>
-            <div className="stat-lbl">para repasar</div>
+            <div className="stat-num">{stats.pending}</div>
+            <div className="stat-lbl">fallados, para volver</div>
           </div>
         </div>
 
         {stats.weak && (
           <p className="plan-warn plan-warn-block" style={{ marginTop: 12 }}>
-            Tu punto flojo ahora mismo es <strong>{stats.weak.g}</strong>: {stats.weak.ok} de {stats.weak.done}. Ahí es
-            donde renta el tiempo, no en lo que ya te sale.
+            Tu punto flojo ahora mismo es <strong>{stats.weak.g}</strong>: {stats.weak.okFirst} a la primera de{' '}
+            {stats.weak.done}. Ahí es donde renta el tiempo, no en lo que ya te sale.
           </p>
         )}
 

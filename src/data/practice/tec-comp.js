@@ -266,23 +266,37 @@ Llamar «biestable» a los dos es correcto; la diferencia es por nivel o por fla
     id: 'sec2',
     g: 'Secuenciales',
     level: 3,
-    q: 'Diseña un contador síncrono módulo 6 (cuenta 0→5 y vuelve a 0) con flip-flops D. ¿Cuántos necesitas y cómo detectas el final?',
-    hint: 'Primero cuántos bits hacen falta. Luego, en qué estado hay que forzar la vuelta a cero.',
-    a: `Para contar hasta 5 hacen falta 3 bits (2³ = 8 ≥ 6). Tres flip-flops D: Q₂Q₁Q₀.
+    q: 'Diseña un contador síncrono módulo 6 (cuenta 0→5 y vuelve a 0) con flip-flops D. Da las ecuaciones y comprueba qué pasa si el circuito arranca en un estado no usado.',
+    hint: 'Primero cuántos bits hacen falta. Luego la tabla de transiciones completa, tratando los estados que sobran como don\'t care en el Karnaugh.',
+    a: `Para contar hasta 5 hacen falta 3 bits (2³ = 8 ≥ 6): Q₂Q₁Q₀.
 
-Secuencia: 000 → 001 → 010 → 011 → 100 → 101 → 000 …
+Tabla de transiciones (110 y 111 nunca se alcanzan → don't care):
+Q₂Q₁Q₀ → D₂D₁D₀
+ 000   →  001
+ 001   →  010
+ 010   →  011
+ 011   →  100
+ 100   →  101
+ 101   →  000    ← aquí está la vuelta
+ 110   →   X
+ 111   →   X
 
-La detección del final: el estado 101 es el último, así que en el siguiente flanco hay que ir a 000. Una forma sencilla es detectar 110 (el primero que sobra) y usarlo como reset asíncrono, pero eso genera un pulso espurio.
+Sacando cada ecuación por Karnaugh, aprovechando los don't care:
 
-Mejor: diseñar las ecuaciones para que desde 101 se vaya a 000 directamente, tratando 110 y 111 como don't care en el Karnaugh (nunca se alcanzan). Sale más barato y sin estados fantasma.
-
-Ecuaciones (con 110 y 111 como X):
 D₀ = ¬Q₀
-D₁ = Q₁ ⊕ Q₀ ... y desde 101 hay que forzar Q₁ = 0
-D₂ = Q₂ ⊕ (Q₁·Q₀)  con la vuelta a 0 desde 101
+D₁ = ¬Q₂ · (Q₁ ⊕ Q₀)
+D₂ = ¬Q₂·Q₁·Q₀ + Q₂·¬Q₀
 
-La lección del ejercicio: el reset por detección de estado sobrante funciona pero es asíncrono y sucio; hacerlo con don't care en las ecuaciones es la forma limpia.`,
-    key: '3 flip-flops; 110 y 111 como don\'t care'
+Comprobación del ciclo entero:
+000→001→010→011→100→101→000 ✓
+
+Y la vuelta desde 101 sale sola de las ecuaciones, sin ningún reset añadido: con Q₂Q₁Q₀ = 101, D₀ = ¬1 = 0, D₁ = ¬1·(…) = 0 y D₂ = 0 + 1·¬1 = 0.
+
+Estados no usados (por si el circuito arranca ahí al encender):
+110 → 101 · 111 → 000
+
+Los dos caen dentro del ciclo en un solo flanco, así que el contador se auto-recupera. Eso es lo que hay que buscar, y es la ventaja de resolverlo con don't care frente a colgar un reset asíncrono al detectar 110: ese reset genera un pulso espurio y deja el circuito colgado si el estado raro es 111.`,
+    key: 'D₀ = ¬Q₀ · D₁ = ¬Q₂(Q₁⊕Q₀) · D₂ = ¬Q₂Q₁Q₀ + Q₂¬Q₀'
   },
   {
     id: 'sec3',

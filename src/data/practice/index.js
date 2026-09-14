@@ -46,39 +46,56 @@ export function groupProblems(problems) {
 
 /**
  * Resumen de cómo llevas una asignatura y, sobre todo, en qué tema
- * flojeas. El punto débil es el tema con peor porcentaje de acierto
- * entre los que tengan al menos dos intentos: con uno solo, un fallo
- * daría un 0 % que no significa nada.
+ * flojeas.
+ *
+ * «A la primera» se mira con los contadores, no con el último
+ * resultado: un problema con {ok:1, fail:1, last:'ok'} lo acabaste
+ * sacando, pero no a la primera, y contarlo como tal daría un 100 %
+ * falso. Es `fail === 0` lo que distingue haberlo tenido de haberlo
+ * recuperado.
+ *
+ * «Pendientes» es otra cosa distinta y también útil: los que ahora
+ * mismo tienes fallados, o sea sobre los que hay que volver.
+ *
+ * El punto débil es el tema con peor porcentaje a la primera entre los
+ * que tengan al menos dos intentos: con uno solo, un fallo daría un 0 %
+ * que no significa nada.
  */
 export function practiceStats(problems, attempts, subjectId) {
   const byTopic = []
   let done = 0
-  let ok = 0
+  let okFirst = 0
+  let pending = 0
   for (const pr of problems) {
     const a = attempts[attemptKey(subjectId, pr.id)]
     let t = byTopic.find((x) => x.g === pr.g)
     if (!t) {
-      t = { g: pr.g, total: 0, done: 0, ok: 0 }
+      t = { g: pr.g, total: 0, done: 0, okFirst: 0, pending: 0 }
       byTopic.push(t)
     }
     t.total++
     if (!a || !a.last) continue
     done++
     t.done++
-    if (a.last === 'ok') {
-      ok++
-      t.ok++
+    if (!a.fail) {
+      okFirst++
+      t.okFirst++
+    }
+    if (a.last === 'fail') {
+      pending++
+      t.pending++
     }
   }
   const weak = byTopic
     .filter((t) => t.done >= 2)
-    .sort((a, b) => a.ok / a.done - b.ok / b.done)[0]
+    .sort((a, b) => a.okFirst / a.done - b.okFirst / b.done)[0]
   return {
     total: problems.length,
     done,
-    ok,
-    rate: done > 0 ? ok / done : null,
+    okFirst,
+    pending,
+    rate: done > 0 ? okFirst / done : null,
     byTopic,
-    weak: weak && weak.ok / weak.done < 0.7 ? weak : null
+    weak: weak && weak.okFirst / weak.done < 0.7 ? weak : null
   }
 }

@@ -14,6 +14,7 @@ import { UNIT_KINDS, planFor } from '../modules/study-planner/studyPlanData.js'
 import { hoursLabel, unitHours } from '../modules/study-planner/planner-engine.js'
 import { todayISO, minutesLabel } from '../lib/dates.js'
 import { subjectById } from '../data/curriculum.js'
+import { hasPractice } from '../data/practice/meta.js'
 import { IconArrowLeft, IconCheck, IconExternal, IconClock } from '../components/Icons.jsx'
 
 // Sugerencia de descanso al estilo pomodoro, sin imponer el ciclo: aquí
@@ -285,14 +286,26 @@ export default function Focus({ subjectId, unitId, navigate }) {
               Volver al calendario
             </button>
             {/* Practicar justo después de estudiar es cuando más renta:
-                acabas de leerlo y todavía crees que lo sabes. */}
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => navigate(`/asignatura/${subjectId}/practica`)}
-            >
-              Practicar lo que sé
-            </button>
+                acabas de leerlo y todavía crees que lo sabes. Pero solo
+                donde hay problemas: en las otras 28 asignaturas el botón
+                llevaría a una página vacía. */}
+            {hasPractice(subjectId) ? (
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => navigate(`/asignatura/${subjectId}/practica`)}
+              >
+                Practicar lo que sé
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => navigate(`/asignatura/${subjectId}`)}
+              >
+                Ver la asignatura
+              </button>
+            )}
           </div>
         )}
       </div>
