@@ -10,6 +10,7 @@ import { toISO, parseISO, formatLong } from '../../lib/dates.js'
 import { STUDY_PLANS, UNIT_KINDS } from './studyPlanData.js'
 import { CURRICULUM } from '../../data/curriculum.js'
 import Checkbox from '../../components/Checkbox.jsx'
+import ExportCalendar from './ExportCalendar.jsx'
 
 const MONTHS_SHORT = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
@@ -30,7 +31,8 @@ function Stepper({ value, onChange, step = 0.5, label }) {
 }
 
 export function HoursEditor() {
-  const { weekHours, setDayHours, resetHours, useScheduleHours, usingSchedule, hasSchedule } = usePlanner()
+  const { weekHours, setDayHours, resetHours, useScheduleHours, usingSchedule, hasSchedule, startTimes, setStartTime } =
+    usePlanner()
   const total = weekHours.reduce((a, b) => a + b, 0)
   return (
     <div className="card">
@@ -55,6 +57,29 @@ export function HoursEditor() {
           </div>
         ))}
       </div>
+      <div className="plan-times">
+        <div className="guide-label">A qué hora empiezas</div>
+        <div className="plan-times-row">
+          <label htmlFor="start-weekday">Entre semana</label>
+          <input
+            id="start-weekday"
+            type="time"
+            value={startTimes[0]}
+            onChange={(e) => setStartTime('weekday', e.target.value)}
+          />
+          <label htmlFor="start-weekend">Fines de semana</label>
+          <input
+            id="start-weekend"
+            type="time"
+            value={startTimes[5]}
+            onChange={(e) => setStartTime('weekend', e.target.value)}
+          />
+        </div>
+        <p className="guide-fine">
+          Solo se usa al exportar al calendario. Si ese día tienes una franja en tu horario semanal, manda esa.
+        </p>
+      </div>
+
       <div className="plan-actions">
         {hasSchedule && !usingSchedule && (
           <button type="button" className="btn btn-ghost btn-sm" onClick={useScheduleHours}>
@@ -241,7 +266,7 @@ export function StudySummary({ navigate }) {
           </h3>
           <p className="plan-sub">{next.examLabel}</p>
         </div>
-        <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate('/agenda')}>
+        <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate('/calendario')}>
           Ver calendario
         </button>
       </div>
@@ -278,15 +303,15 @@ export function StudySummary({ navigate }) {
 
 /* ------------------------------------------- calendario completo (Agenda) */
 
-export default function StudyOverview({ navigate, initialDay = null }) {
+export default function StudyOverview({ navigate, selectedDay = null }) {
   const { subjects, schedule, state, today } = usePlanner()
-  const [selected, setSelected] = useState(initialDay)
   const [weeksShown, setWeeksShown] = useState(6)
 
-  // #/calendario/2026-09-22 abre ese día directamente (enlace compartible).
-  useEffect(() => {
-    if (initialDay) setSelected(initialDay)
-  }, [initialDay])
+  // El día abierto vive en la ruta (#/calendario/2026-09-22), no en un
+  // estado aparte: así la URL siempre se puede copiar o guardar, y
+  // «atrás» cierra el detalle.
+  const selected = selectedDay
+  const openDay = (key) => navigate(key ? `/calendario/${key}` : '/calendario')
 
   const active = subjects.filter((s) => s.units.length && (!s.exam || daysBetween(today, parseISO(s.exam)) >= 0))
   const upcoming = subjects.filter((s) => !s.units.length)
@@ -320,6 +345,13 @@ export default function StudyOverview({ navigate, initialDay = null }) {
   // El detalle se pinta justo debajo de la semana del día pulsado, para
   // no obligar a bajar hasta el final del calendario.
   const selectedWeek = sel ? Math.floor(daysBetween(startOfWeek(today), sel.date) / 7) : -1
+  const detailInline = sel !== null && selectedWeek >= 0 && selectedWeek < weeksShown
+
+  // Un enlace directo a un día futuro que aún no se pinta amplía el
+  // calendario hasta él, para verlo en su contexto.
+  useEffect(() => {
+    if (selectedWeek >= weeksShown && selectedWeek < 16) setWeeksShown(selectedWeek + 1)
+  }, [selectedWeek, weeksShown])
 
   if (!active.length && !upcoming.length) {
     return (
@@ -367,6 +399,7 @@ export default function StudyOverview({ navigate, initialDay = null }) {
             <p className="plan-sub">Toca un día para darte libre o añadir horas sueltas.</p>
           </div>
           <div className="plan-legend">
+            <ExportCalendar />
             {active.map((s) => (
               <button
                 key={s.id}
@@ -381,6 +414,10 @@ export default function StudyOverview({ navigate, initialDay = null }) {
             ))}
           </div>
         </div>
+
+        {sel && !detailInline && (
+          <DayDetail day={sel} onClose={() => openDay(null)} navigate={navigate} />
+        )}
 
         <div className="plan-calhead" aria-hidden="true">
           {DAY_LABELS.map((d) => (
@@ -414,7 +451,7 @@ export default function StudyOverview({ navigate, initialDay = null }) {
                   aria-label={`${formatLong(day.key)}: ${
                     day.capacity > 0 ? hoursLabel(day.capacity) : 'sin estudio'
                   }${day.items.length ? `, ${day.items.length} bloques` : ''}`}
-                  onClick={() => setSelected(selected === day.key ? null : day.key)}
+                  onClick={() => openDay(selected === day.key ? null : day.key)}
                 >
                   <span className="plan-daynum">
                     <span className="plan-dayweek" aria-hidden="true">
@@ -443,8 +480,8 @@ export default function StudyOverview({ navigate, initialDay = null }) {
               )
             })}
           </div>
-          {sel && selectedWeek === wi && (
-            <DayDetail day={sel} onClose={() => setSelected(null)} navigate={navigate} />
+          {detailInline && selectedWeek === wi && (
+            <DayDetail day={sel} onClose={() => openDay(null)} navigate={navigate} />
           )}
           </React.Fragment>
         ))}

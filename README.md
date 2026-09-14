@@ -49,6 +49,10 @@ De dónde salen los datos:
 - **Fecha de examen** → la evaluación de tipo «examen» más próxima que tengas apuntada en Agenda. Si no hay ninguna, usa una estimación y te invita a apuntar la real.
 - **Horas por día** → se siembran de tu horario semanal (Agenda › Horario semanal) y puedes ajustarlas a mano; el botón «Tomar de mi horario semanal» vuelve a seguirlo.
 
+**Exportar al calendario**: el botón «Exportar al calendario» descarga un `.ics` con todas las sesiones planificadas, listo para importar en Google Calendar (o Apple Calendar, Outlook…). Cada evento lleva en la descripción qué toca, el tipo de unidad, cómo abordar la asignatura y los recursos de su guía que encajan con ese tema concreto, además de un enlace de vuelta al día en NÚCLEO. Los exámenes salen como eventos de día completo. Las sesiones se colocan en las franjas de tu horario semanal de la Agenda, usando **todas** las de ese día: con «lunes 09:00-10:00» y «lunes 18:00-19:00», la segunda sesión va a las 18:00, no encadenada a las 10:00, y una sesión que no cabe en un hueco se parte y sigue en el siguiente. Si ese día no tienes franjas, empiezan a las **18:00 entre semana** y a las **10:00 los fines de semana** y se encadenan. Las horas se cambian en «Tus horas».
+
+`calendarExport.js` tiene también `toGoogleEvents()`, que deja los mismos eventos en el formato de la API de Google Calendar para cuando se añada el scope `calendar.events` al OAuth y se puedan sincronizar en vez de exportar.
+
 La vista vive en `#/calendario`, y `#/calendario/2026-09-22` abre directamente el detalle de ese día.
 
 El estado (`weekHours`, `exceptions`, `done`, `hourOverrides`) vive dentro de `data.planner`, así que se guarda con el mismo mecanismo que el resto: localStorage siempre y Google Drive con debounce si está conectado, y entra en la exportación JSON.
