@@ -157,10 +157,17 @@ export function buildSchedule(subjects, state, today = new Date()) {
     }
 
     // Bloques seguidos de la misma unidad se ven como un solo item.
+    // Hay que comparar también la asignatura: los id de unidad solo son
+    // únicos dentro de su temario, así que dos asignaturas pueden tener
+    // ambas un «t2a» y, si sus bloques caen seguidos, se fusionarían en
+    // uno solo quedándose con el título y la asignatura del primero.
     for (const b of blocks) {
       const prev = day.items[day.items.length - 1]
-      if (prev && prev.unitId === b.unitId) prev.h = +(prev.h + b.h).toFixed(2)
-      else day.items.push({ ...b })
+      if (prev && prev.subjectId === b.subjectId && prev.unitId === b.unitId) {
+        prev.h = +(prev.h + b.h).toFixed(2)
+      } else {
+        day.items.push({ ...b })
+      }
     }
 
     days.push(day)
