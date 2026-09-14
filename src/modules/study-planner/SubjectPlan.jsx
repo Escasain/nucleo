@@ -8,6 +8,7 @@ import { hoursLabel, daysBetween, startOfWeek, unitHours } from './planner-engin
 import { toISO, parseISO, formatShort } from '../../lib/dates.js'
 import { UNIT_KINDS, planFor } from './studyPlanData.js'
 import Checkbox from '../../components/Checkbox.jsx'
+import { IconPlay } from '../../components/Icons.jsx'
 
 function Stepper({ value, onChange, onClear, custom, label }) {
   return (
@@ -201,6 +202,17 @@ export default function SubjectPlan({ subjectId, navigate }) {
                       {g.key === 'out' && !u.isDone && <span className="muted">no cabe antes del examen</span>}
                     </span>
                   </div>
+                  {navigate && !u.isDone && (
+                    <button
+                      type="button"
+                      className="icon-btn plan-unit-go"
+                      title={`Estudiar: ${u.t}`}
+                      aria-label={`Estudiar: ${u.t}`}
+                      onClick={() => navigate(`/sesion/${subjectId}/${u.id}`)}
+                    >
+                      <IconPlay aria-hidden="true" />
+                    </button>
+                  )}
                   <Stepper
                     value={h}
                     custom={custom}

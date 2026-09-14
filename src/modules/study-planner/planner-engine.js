@@ -48,10 +48,20 @@ export function hoursLabel(n) {
   return Number.isInteger(v) ? `${v} h` : `${v.toFixed(1).replace('.', ',')} h`
 }
 
-/** Horas de una unidad, teniendo en cuenta el ajuste manual. */
+/**
+ * Horas de una unidad.
+ *
+ * Manda siempre el ajuste que hayas hecho tú a mano. Si no lo hay y la
+ * asignatura tiene factor de ritmo (calibrado con lo que de verdad has
+ * tardado en las unidades terminadas), se aplica sobre la estimación
+ * original del temario: así recalibrar dos veces no compone el error.
+ */
 export function unitHours(state, subjectId, unit) {
   const override = state.hourOverrides?.[`${subjectId}:${unit.id}`]
-  return override ?? unit.h
+  if (override !== undefined) return override
+  const factor = state.paceFactor?.[subjectId]
+  if (!factor || factor === 1) return unit.h
+  return Math.max(0.5, Math.round(unit.h * factor * 4) / 4)
 }
 
 /**

@@ -137,3 +137,18 @@ export const IconPlanner = (p) => (
     <path d="M7 13h3M14 13h3M7 17h3M14 17h3" />
   </svg>
 )
+
+export const IconChart = (p) => (
+  <svg {...base} {...p}>
+    <path d="M4 20V10" />
+    <path d="M10 20V4" />
+    <path d="M16 20v-7" />
+    <path d="M22 20H2" />
+  </svg>
+)
+
+export const IconPlay = (p) => (
+  <svg {...base} {...p}>
+    <path d="M8 5.5v13l10-6.5z" />
+  </svg>
+)

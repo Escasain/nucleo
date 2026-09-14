@@ -12,9 +12,11 @@ import SubjectDetail from './views/SubjectDetail.jsx'
 import Agenda from './views/Agenda.jsx'
 import StudyOverview from './modules/study-planner/StudyOverview.jsx'
 import Study from './views/Study.jsx'
+import Progress from './views/Progress.jsx'
+import Focus from './views/Focus.jsx'
 import Settings from './views/Settings.jsx'
 
-const GO_KEYS = { i: '/', p: '/plan', c: '/calendario', a: '/agenda', e: '/estudio', j: '/ajustes' }
+const GO_KEYS = { i: '/', p: '/plan', c: '/calendario', a: '/agenda', e: '/estudio', r: '/progreso', j: '/ajustes' }
 
 function isTyping(e) {
   const t = e.target
@@ -39,7 +41,7 @@ function Shell() {
   // vista y saltar arriba perdería de vista el detalle.
   useEffect(() => {
     window.scrollTo(0, 0)
-  }, [route.name, route.id, route.subjectId])
+  }, [route.name, route.id, route.subjectId, route.unitId])
 
   // Atajos globales: ? ayuda · Ctrl/⌘+K buscar · G + letra navegar · Esc cerrar
   const openSearch = useCallback(() => setSearch(true), [])
@@ -82,6 +84,9 @@ function Shell() {
   else if (route.name === 'calendario') view = <StudyOverview navigate={navigate} selectedDay={route.day} />
   else if (route.name === 'agenda') view = <Agenda navigate={navigate} />
   else if (route.name === 'estudio') view = <Study subjectId={route.subjectId} navigate={navigate} />
+  else if (route.name === 'progreso') view = <Progress navigate={navigate} />
+  else if (route.name === 'sesion')
+    view = <Focus subjectId={route.subjectId} unitId={route.unitId} navigate={navigate} />
   else if (route.name === 'ajustes') view = <Settings onHelp={() => setHelp(true)} />
   else view = <Dashboard navigate={navigate} />
 
