@@ -241,7 +241,7 @@ export function StudySummary({ navigate }) {
           </h3>
           <p className="plan-sub">{next.examLabel}</p>
         </div>
-        <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate('/agenda')}>
+        <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate('/calendario')}>
           Ver calendario
         </button>
       </div>
@@ -278,15 +278,15 @@ export function StudySummary({ navigate }) {
 
 /* ------------------------------------------- calendario completo (Agenda) */
 
-export default function StudyOverview({ navigate, initialDay = null }) {
+export default function StudyOverview({ navigate, selectedDay = null }) {
   const { subjects, schedule, state, today } = usePlanner()
-  const [selected, setSelected] = useState(initialDay)
   const [weeksShown, setWeeksShown] = useState(6)
 
-  // #/calendario/2026-09-22 abre ese día directamente (enlace compartible).
-  useEffect(() => {
-    if (initialDay) setSelected(initialDay)
-  }, [initialDay])
+  // El día abierto vive en la ruta (#/calendario/2026-09-22), no en un
+  // estado aparte: así la URL siempre se puede copiar o guardar, y
+  // «atrás» cierra el detalle.
+  const selected = selectedDay
+  const openDay = (key) => navigate(key ? `/calendario/${key}` : '/calendario')
 
   const active = subjects.filter((s) => s.units.length && (!s.exam || daysBetween(today, parseISO(s.exam)) >= 0))
   const upcoming = subjects.filter((s) => !s.units.length)
@@ -320,6 +320,13 @@ export default function StudyOverview({ navigate, initialDay = null }) {
   // El detalle se pinta justo debajo de la semana del día pulsado, para
   // no obligar a bajar hasta el final del calendario.
   const selectedWeek = sel ? Math.floor(daysBetween(startOfWeek(today), sel.date) / 7) : -1
+  const detailInline = sel !== null && selectedWeek >= 0 && selectedWeek < weeksShown
+
+  // Un enlace directo a un día futuro que aún no se pinta amplía el
+  // calendario hasta él, para verlo en su contexto.
+  useEffect(() => {
+    if (selectedWeek >= weeksShown && selectedWeek < 16) setWeeksShown(selectedWeek + 1)
+  }, [selectedWeek, weeksShown])
 
   if (!active.length && !upcoming.length) {
     return (
@@ -382,6 +389,10 @@ export default function StudyOverview({ navigate, initialDay = null }) {
           </div>
         </div>
 
+        {sel && !detailInline && (
+          <DayDetail day={sel} onClose={() => openDay(null)} navigate={navigate} />
+        )}
+
         <div className="plan-calhead" aria-hidden="true">
           {DAY_LABELS.map((d) => (
             <span key={d}>{d}</span>
@@ -414,7 +425,7 @@ export default function StudyOverview({ navigate, initialDay = null }) {
                   aria-label={`${formatLong(day.key)}: ${
                     day.capacity > 0 ? hoursLabel(day.capacity) : 'sin estudio'
                   }${day.items.length ? `, ${day.items.length} bloques` : ''}`}
-                  onClick={() => setSelected(selected === day.key ? null : day.key)}
+                  onClick={() => openDay(selected === day.key ? null : day.key)}
                 >
                   <span className="plan-daynum">
                     <span className="plan-dayweek" aria-hidden="true">
@@ -443,8 +454,8 @@ export default function StudyOverview({ navigate, initialDay = null }) {
               )
             })}
           </div>
-          {sel && selectedWeek === wi && (
-            <DayDetail day={sel} onClose={() => setSelected(null)} navigate={navigate} />
+          {detailInline && selectedWeek === wi && (
+            <DayDetail day={sel} onClose={() => openDay(null)} navigate={navigate} />
           )}
           </React.Fragment>
         ))}

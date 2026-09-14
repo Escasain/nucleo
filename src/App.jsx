@@ -79,7 +79,7 @@ function Shell() {
   let view
   if (route.name === 'plan') view = <Plan navigate={navigate} />
   else if (route.name === 'subject') view = <SubjectDetail id={route.id} navigate={navigate} />
-  else if (route.name === 'calendario') view = <StudyOverview navigate={navigate} initialDay={route.day} />
+  else if (route.name === 'calendario') view = <StudyOverview navigate={navigate} selectedDay={route.day} />
   else if (route.name === 'agenda') view = <Agenda navigate={navigate} />
   else if (route.name === 'estudio') view = <Study subjectId={route.subjectId} navigate={navigate} />
   else if (route.name === 'ajustes') view = <Settings onHelp={() => setHelp(true)} />
