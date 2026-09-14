@@ -3,12 +3,13 @@
 //  · StudySummary  → tarjeta compacta para Inicio
 //  · StudyOverview → calendario completo (pestaña de Agenda)
 // ============================================================
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { usePlanner } from './PlannerProvider.jsx'
 import { DAY_LABELS, addDays, startOfWeek, sameDay, daysBetween, dow, hoursLabel } from './planner-engine.js'
 import { toISO, parseISO, formatLong } from '../../lib/dates.js'
-import { STUDY_PLANS } from './studyPlanData.js'
+import { STUDY_PLANS, UNIT_KINDS } from './studyPlanData.js'
 import { CURRICULUM } from '../../data/curriculum.js'
+import Checkbox from '../../components/Checkbox.jsx'
 
 const MONTHS_SHORT = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
@@ -112,6 +113,106 @@ export function PressureBar({ subject, onOpen }) {
   )
 }
 
+/**
+ * Qué toca un día concreto: cada bloque con su asignatura, su tipo y
+ * sus horas, más los controles para cambiar el tiempo de ese día.
+ */
+function DayDetail({ day, onClose, navigate }) {
+  const { subjects, state, setException, toggleDone, today } = usePlanner()
+  const isToday = sameDay(day.date, today)
+  const isPast = day.date < today
+  const overridden = state.exceptions[day.key] !== undefined
+  const planned = day.items.reduce((a, i) => a + i.h, 0)
+  const free = +(day.capacity - planned).toFixed(2)
+
+  return (
+    <div className="plan-detail" role="region" aria-label={`Detalle de ${formatLong(day.key)}`}>
+      <div className="plan-detail-head">
+        <div>
+          <div className="guide-label">
+            {isToday ? 'Hoy' : isPast ? 'Día pasado' : 'Ese día'}
+          </div>
+          <h4>{formatLong(day.key)}</h4>
+          <p className="muted">
+            {day.capacity > 0 ? `${hoursLabel(day.capacity)} disponibles` : 'Sin estudio este día'}
+            {planned > 0 ? ` · ${hoursLabel(planned)} planificadas` : ''}
+            {day.capacity > 0 && free >= 0.5 ? ` · ${hoursLabel(free)} sin asignar` : ''}
+            {overridden ? ' · ajustado a mano' : ''}
+          </p>
+        </div>
+        <button type="button" className="icon-btn plan-detail-close" onClick={onClose} aria-label="Cerrar el detalle del día">
+          ✕
+        </button>
+      </div>
+
+      {day.exams.length > 0 && (
+        <div className="plan-detail-exams">
+          {day.exams.map((s) => (
+            <div key={s.id} className="plan-detail-exam" style={{ borderColor: s.color }}>
+              <strong>Examen de {s.name}</strong>
+              <span className="muted">{s.examLabel}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {day.items.length > 0 ? (
+        <ul className="plan-detail-list">
+          {day.items.map((it, i) => {
+            const subj = subjects.find((x) => x.id === it.subjectId)
+            const kind = UNIT_KINDS[it.kind] || UNIT_KINDS.tema
+            const isDone = (state.done[it.subjectId] || []).includes(it.unitId)
+            return (
+              <li key={`${it.unitId}-${i}`} className="plan-detail-item">
+                <Checkbox
+                  checked={isDone}
+                  label={`${isDone ? 'Marcar como pendiente' : 'Marcar como hecho'}: ${it.title}`}
+                  onChange={() => toggleDone(it.subjectId, it.unitId)}
+                />
+                <span className="plan-detail-h">{hoursLabel(it.h)}</span>
+                <div className="plan-detail-body">
+                  <span className="plan-detail-title">{it.title}</span>
+                  <span className="plan-detail-meta">
+                    <button
+                      type="button"
+                      className="plan-linkname"
+                      onClick={() => navigate(`/asignatura/${it.subjectId}`)}
+                    >
+                      <span className="plan-dot" style={{ background: subj?.color }} aria-hidden="true" />
+                      {subj?.name || it.subjectId}
+                    </button>
+                    <i className={`plan-kind ${kind.className}`}>{kind.label}</i>
+                  </span>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      ) : (
+        <p className="plan-detail-empty muted">
+          {day.capacity === 0
+            ? 'Día libre. Súbele horas abajo si al final puedes estudiar.'
+            : isPast
+              ? 'No había nada planificado.'
+              : 'Nada que estudiar: el temario pendiente ya está repartido en otros días.'}
+        </p>
+      )}
+
+      <div className="plan-dayedit-actions">
+        <Stepper value={day.capacity} onChange={(v) => setException(day.key, v)} label={formatLong(day.key)} />
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setException(day.key, 0)}>
+          Día libre
+        </button>
+        {overridden && (
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setException(day.key, null)}>
+            Usar el horario normal
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
 /* --------------------------------------------- tarjeta compacta (Inicio) */
 
 export function StudySummary({ navigate }) {
@@ -177,10 +278,15 @@ export function StudySummary({ navigate }) {
 
 /* ------------------------------------------- calendario completo (Agenda) */
 
-export default function StudyOverview({ navigate }) {
-  const { subjects, schedule, state, setException, today } = usePlanner()
-  const [selected, setSelected] = useState(null)
+export default function StudyOverview({ navigate, initialDay = null }) {
+  const { subjects, schedule, state, today } = usePlanner()
+  const [selected, setSelected] = useState(initialDay)
   const [weeksShown, setWeeksShown] = useState(6)
+
+  // #/calendario/2026-09-22 abre ese día directamente (enlace compartible).
+  useEffect(() => {
+    if (initialDay) setSelected(initialDay)
+  }, [initialDay])
 
   const active = subjects.filter((s) => s.units.length && (!s.exam || daysBetween(today, parseISO(s.exam)) >= 0))
   const upcoming = subjects.filter((s) => !s.units.length)
@@ -211,6 +317,10 @@ export default function StudyOverview({ navigate }) {
     ? byKey[selected] || { key: selected, date: parseISO(selected), capacity: 0, items: [], exams: [] }
     : null
 
+  // El detalle se pinta justo debajo de la semana del día pulsado, para
+  // no obligar a bajar hasta el final del calendario.
+  const selectedWeek = sel ? Math.floor(daysBetween(startOfWeek(today), sel.date) / 7) : -1
+
   if (!active.length && !upcoming.length) {
     return (
       <div className="card empty">
@@ -222,6 +332,11 @@ export default function StudyOverview({ navigate }) {
 
   return (
     <div className="plan-stack">
+      <div className="page-head" style={{ marginBottom: 0 }}>
+        <h1>Calendario de estudio</h1>
+        <div className="sub">Tu temario repartido entre los días que puedes estudiar, hasta cada examen</div>
+      </div>
+
       {next && (
         <div className="card plan-hero">
           <div className="guide-label">Próxima prueba</div>
@@ -274,7 +389,8 @@ export default function StudyOverview({ navigate }) {
         </div>
 
         {weeks.map((week, wi) => (
-          <div className="plan-week" key={wi}>
+          <React.Fragment key={wi}>
+          <div className="plan-week">
             {week.map((day) => {
               const isToday = sameDay(day.date, today)
               const isPast = day.date < today
@@ -294,6 +410,7 @@ export default function StudyOverview({ navigate }) {
                   type="button"
                   className={cls}
                   aria-pressed={selected === day.key}
+                  aria-expanded={selected === day.key}
                   aria-label={`${formatLong(day.key)}: ${
                     day.capacity > 0 ? hoursLabel(day.capacity) : 'sin estudio'
                   }${day.items.length ? `, ${day.items.length} bloques` : ''}`}
@@ -326,6 +443,10 @@ export default function StudyOverview({ navigate }) {
               )
             })}
           </div>
+          {sel && selectedWeek === wi && (
+            <DayDetail day={sel} onClose={() => setSelected(null)} navigate={navigate} />
+          )}
+          </React.Fragment>
         ))}
 
         {weeksShown < 16 && (
@@ -334,32 +455,6 @@ export default function StudyOverview({ navigate }) {
           </button>
         )}
 
-        {sel && (
-          <div className="plan-dayedit">
-            <div>
-              <h4>{formatLong(sel.key)}</h4>
-              <p className="muted">
-                {sel.capacity > 0 ? `${hoursLabel(sel.capacity)} planificadas` : 'Sin estudio este día'}
-                {state.exceptions[sel.key] !== undefined && ' · ajustado a mano'}
-              </p>
-            </div>
-            <div className="plan-dayedit-actions">
-              <Stepper
-                value={sel.capacity}
-                onChange={(v) => setException(sel.key, v)}
-                label={formatLong(sel.key)}
-              />
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setException(sel.key, 0)}>
-                Día libre
-              </button>
-              {state.exceptions[sel.key] !== undefined && (
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setException(sel.key, null)}>
-                  Usar el horario normal
-                </button>
-              )}
-            </div>
-          </div>
-        )}
       </div>
 
       {upcoming.length > 0 && (

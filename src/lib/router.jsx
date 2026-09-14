@@ -1,4 +1,4 @@
-// Mini-router por hash: #/, #/plan, #/asignatura/:id, #/agenda, #/estudio, #/ajustes
+// Mini-router por hash: #/, #/plan, #/asignatura/:id, #/calendario, #/agenda, #/estudio, #/ajustes
 import { useEffect, useState, useCallback } from 'react'
 
 export function parseHash() {
@@ -7,6 +7,7 @@ export function parseHash() {
   if (parts.length === 0) return { name: 'dashboard' }
   if (parts[0] === 'plan') return { name: 'plan' }
   if (parts[0] === 'asignatura' && parts[1]) return { name: 'subject', id: parts[1] }
+  if (parts[0] === 'calendario') return { name: 'calendario', day: parts[1] || null }
   if (parts[0] === 'agenda') return { name: 'agenda' }
   if (parts[0] === 'estudio') return { name: 'estudio', subjectId: parts[1] || null }
   if (parts[0] === 'ajustes') return { name: 'ajustes' }

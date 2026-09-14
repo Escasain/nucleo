@@ -1,10 +1,11 @@
 import React from 'react'
 import { useStore } from '../lib/store.jsx'
-import { IconHome, IconBook, IconCalendar, IconCards, IconGear, IconSearch, IconHelp } from './Icons.jsx'
+import { IconHome, IconBook, IconCalendar, IconCards, IconGear, IconSearch, IconHelp, IconPlanner } from './Icons.jsx'
 
 const LINKS = [
   { hash: '#/', name: 'dashboard', label: 'Inicio', Icon: IconHome },
   { hash: '#/plan', name: 'plan', label: 'Plan de estudios', Icon: IconBook },
+  { hash: '#/calendario', name: 'calendario', label: 'Calendario', Icon: IconPlanner },
   { hash: '#/agenda', name: 'agenda', label: 'Agenda', Icon: IconCalendar },
   { hash: '#/estudio', name: 'estudio', label: 'Estudio', Icon: IconCards },
   { hash: '#/ajustes', name: 'ajustes', label: 'Ajustes', Icon: IconGear }

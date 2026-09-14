@@ -129,3 +129,11 @@ export const IconPrint = (p) => (
     <rect x="6" y="14" width="12" height="7" />
   </svg>
 )
+
+export const IconPlanner = (p) => (
+  <svg {...base} {...p}>
+    <rect x="3" y="4.5" width="18" height="16" rx="2" />
+    <path d="M3 9.5h18M8 2.5v4M16 2.5v4" />
+    <path d="M7 13h3M14 13h3M7 17h3M14 17h3" />
+  </svg>
+)

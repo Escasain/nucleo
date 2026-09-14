@@ -141,7 +141,9 @@ export default function Dashboard({ navigate }) {
         <div className="today-head">
           <div>
             <div className="guide-label">Hoy</div>
-            <h3 style={{ marginBottom: 0, textTransform: 'capitalize' }}>{formatLong(today)}</h3>
+            <h3 style={{ marginBottom: 0 }} className="cap-first">
+              {formatLong(today)}
+            </h3>
           </div>
           <span className="chip block" style={{ background: block.color }}>
             {block.upcoming ? 'Próximo bloque' : 'Bloque'} {block.label} · {formatShort(toISO(block.from))} – {formatShort(toISO(block.to))}

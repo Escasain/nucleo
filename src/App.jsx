@@ -10,10 +10,11 @@ import Dashboard from './views/Dashboard.jsx'
 import Plan from './views/Plan.jsx'
 import SubjectDetail from './views/SubjectDetail.jsx'
 import Agenda from './views/Agenda.jsx'
+import StudyOverview from './modules/study-planner/StudyOverview.jsx'
 import Study from './views/Study.jsx'
 import Settings from './views/Settings.jsx'
 
-const GO_KEYS = { i: '/', p: '/plan', a: '/agenda', e: '/estudio', j: '/ajustes' }
+const GO_KEYS = { i: '/', p: '/plan', c: '/calendario', a: '/agenda', e: '/estudio', j: '/ajustes' }
 
 function isTyping(e) {
   const t = e.target
@@ -33,7 +34,9 @@ function Shell() {
     setMenuOpen(false)
   }, [route.name, route.id, route.subjectId])
 
-  // Cada vista empieza por su encabezado, no a media página
+  // Cada vista empieza por su encabezado, no a media página. El día
+  // seleccionado del calendario no cuenta: cambia dentro de la misma
+  // vista y saltar arriba perdería de vista el detalle.
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [route.name, route.id, route.subjectId])
@@ -76,6 +79,7 @@ function Shell() {
   let view
   if (route.name === 'plan') view = <Plan navigate={navigate} />
   else if (route.name === 'subject') view = <SubjectDetail id={route.id} navigate={navigate} />
+  else if (route.name === 'calendario') view = <StudyOverview navigate={navigate} initialDay={route.day} />
   else if (route.name === 'agenda') view = <Agenda navigate={navigate} />
   else if (route.name === 'estudio') view = <Study subjectId={route.subjectId} navigate={navigate} />
   else if (route.name === 'ajustes') view = <Settings onHelp={() => setHelp(true)} />

@@ -15,7 +15,7 @@ La build usa rutas relativas (`base: './'` en `vite.config.js`), así que el mis
 - **Agenda** — todas las entregas y exámenes del curso en una vista única, con avisos de retraso.
 - **Herramientas de estudio** — flashcards con repaso espaciado (sistema Leitner) por asignatura y temporizador pomodoro que registra tus minutos de estudio.
 - **Tus datos, en tu Drive** — todo se guarda como `nucleo-data.json` en la carpeta `NÚCLEO` de tu Google Drive, con caché local para funcionar offline y exportación/importación JSON como copia de seguridad.
-- **Calendario de estudio** — reparte el temario pendiente entre los días que puedes estudiar, hasta la fecha del examen. Ajustas las horas de cada día y el calendario se recoloca al instante; marcas una unidad como hecha y libera su tiempo para el resto. Si el temario no cabe antes de la prueba, te dice cuántas horas faltan por asignatura. Resumen en Inicio, calendario completo en Agenda › Planificador, y el temario con sus fechas en cada asignatura › Calendario.
+- **Calendario de estudio** — reparte el temario pendiente entre los días que puedes estudiar, hasta la fecha del examen. Ajustas las horas de cada día y el calendario se recoloca al instante; marcas una unidad como hecha y libera su tiempo para el resto. Si el temario no cabe antes de la prueba, te dice cuántas horas faltan por asignatura. Resumen en Inicio, calendario completo en su propia pestaña **Calendario** del menú, y el temario con sus fechas en cada asignatura › Calendario. Al tocar un día se abre su detalle: qué bloques tocan, de qué asignatura y de qué tipo, con sus horas, para marcarlos como hechos o cambiar el tiempo de ese día.
 - **Panel «Hoy»** — bloque bimestral en curso, horario de hoy, tarjetas por repasar, entregas próximas y atrasadas, objetivo semanal y racha de días estudiando.
 - **Horario semanal y calendario mensual** — bloques fijos de estudio que aparecen cada día en Inicio; vista de mes con evaluaciones y sesiones.
 - **Progreso del temario** — marca cada tema estudiado desde la guía; el porcentaje se ve en la asignatura, en el plan y en Inicio.
@@ -48,6 +48,8 @@ De dónde salen los datos:
 - **Temario y horas** → `src/modules/study-planner/studyPlanData.js`. Para dar de alta otra asignatura basta con añadir su entrada con las claves del plan (`algebra`, `tec-comp`…): no hay que tocar ningún componente. El de **Álgebra y Matemática Discreta** es el real, unidad por unidad; el de **Tecnología de Computadores** es provisional y la interfaz lo avisa.
 - **Fecha de examen** → la evaluación de tipo «examen» más próxima que tengas apuntada en Agenda. Si no hay ninguna, usa una estimación y te invita a apuntar la real.
 - **Horas por día** → se siembran de tu horario semanal (Agenda › Horario semanal) y puedes ajustarlas a mano; el botón «Tomar de mi horario semanal» vuelve a seguirlo.
+
+La vista vive en `#/calendario`, y `#/calendario/2026-09-22` abre directamente el detalle de ese día.
 
 El estado (`weekHours`, `exceptions`, `done`, `hourOverrides`) vive dentro de `data.planner`, así que se guarda con el mismo mecanismo que el resto: localStorage siempre y Google Drive con debounce si está conectado, y entra en la exportación JSON.
 
