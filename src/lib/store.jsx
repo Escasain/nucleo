@@ -48,6 +48,10 @@ export function emptyData() {
     updatedAt: new Date().toISOString(),
     subjects: JSON.parse(JSON.stringify(INITIAL_SUBJECT_STATE)),
     sessions: [],
+    // Explicaciones con tus palabras y dudas abiertas, atadas a la
+    // asignatura y (si vienen de una sesión) a su unidad del temario.
+    // No confundir con subjects[id].notes, que son los apuntes libres.
+    understanding: [],
     resources: {},
     tasks: [],
     decks: {},
@@ -80,6 +84,7 @@ export function normalize(raw) {
     updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : base.updatedAt,
     subjects: asObject(raw.subjects),
     sessions: asArray(raw.sessions).filter((s) => s && s.id),
+    understanding: asArray(raw.understanding).filter((n) => n && n.id && typeof n.text === 'string'),
     tasks: asArray(raw.tasks).filter((t) => t && t.id),
     pomodoro: asArray(raw.pomodoro).filter((p) => p && p.id),
     resources: mapOfLists(raw.resources),
@@ -188,6 +193,22 @@ function reducer(data, action) {
       })
     case 'deleteSession':
       return stamp({ ...data, sessions: data.sessions.filter((s) => s.id !== action.id) })
+
+    case 'addUnderstanding':
+      return stamp({
+        ...data,
+        understanding: [
+          ...data.understanding,
+          { id: uid(), createdAt: new Date().toISOString(), resolved: false, ...action.note }
+        ]
+      })
+    case 'updateUnderstanding':
+      return stamp({
+        ...data,
+        understanding: data.understanding.map((n) => (n.id === action.id ? { ...n, ...action.patch } : n))
+      })
+    case 'deleteUnderstanding':
+      return stamp({ ...data, understanding: data.understanding.filter((n) => n.id !== action.id) })
 
     case 'addResource': {
       const list = data.resources[action.subjectId] || []

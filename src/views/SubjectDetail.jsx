@@ -6,6 +6,7 @@ import { todayISO, formatShort, minutesLabel, relativeLabel, isOverdue } from '.
 import { pickDriveFiles, isPickerConfigured } from '../lib/driveSync.js'
 import Modal from '../components/Modal.jsx'
 import Checkbox from '../components/Checkbox.jsx'
+import Understanding from '../components/Understanding.jsx'
 // La guía trae bastante contenido: se carga solo al abrir una asignatura.
 const StudyGuide = lazy(() => import('../components/StudyGuide.jsx'))
 const SubjectPlan = lazy(() => import('../modules/study-planner/SubjectPlan.jsx'))
@@ -17,7 +18,7 @@ const TABS = [
   { id: 'clases', label: 'Clases y sesiones' },
   { id: 'recursos', label: 'Recursos' },
   { id: 'evaluaciones', label: 'Evaluaciones' },
-  { id: 'notas', label: 'Notas' }
+  { id: 'notas', label: 'Notas y dudas' }
 ]
 
 function resourceKindLabel(r) {
@@ -29,10 +30,14 @@ function resourceKindLabel(r) {
   }
 }
 
-export default function SubjectDetail({ id, navigate }) {
+export default function SubjectDetail({ id, tab: routeTab, navigate }) {
   const { data, dispatch, toast } = useStore()
   const subject = subjectById(id)
-  const [tab, setTab] = useState('guia')
+  // La pestaña vive en la ruta (#/asignatura/:id/:pestaña) para que un
+  // enlace desde Inicio o desde la búsqueda caiga donde toca y se pueda
+  // compartir. Una pestaña desconocida cae en la primera.
+  const tab = TABS.some((t) => t.id === routeTab) ? routeTab : 'guia'
+  const setTab = (t) => navigate(`/asignatura/${id}/${t}`)
   const [sessionModal, setSessionModal] = useState(false)
   const [taskModal, setTaskModal] = useState(false)
   const [linkModal, setLinkModal] = useState(false)
@@ -297,16 +302,19 @@ export default function SubjectDetail({ id, navigate }) {
       )}
 
       {tab === 'notas' && (
-        <div className="card">
-          <h3>Notas de la asignatura</h3>
-          <textarea
-            rows={12}
-            aria-label="Notas de la asignatura"
-            placeholder="Apuntes rápidos, temario, contactos del profesor, criterios de evaluación…"
-            value={state.notes || ''}
-            onChange={(e) => dispatch({ type: 'setSubject', id, patch: { notes: e.target.value } })}
-          />
-        </div>
+        <>
+          <Understanding subjectId={id} />
+          <div className="card">
+            <h3>Notas de la asignatura</h3>
+            <textarea
+              rows={12}
+              aria-label="Notas de la asignatura"
+              placeholder="Apuntes rápidos, temario, contactos del profesor, criterios de evaluación…"
+              value={state.notes || ''}
+              onChange={(e) => dispatch({ type: 'setSubject', id, patch: { notes: e.target.value } })}
+            />
+          </div>
+        </>
       )}
 
       {sessionModal && (

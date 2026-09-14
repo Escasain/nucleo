@@ -1250,3 +1250,121 @@ a.guide-res-title:hover { color: var(--pine); text-decoration: underline; }
   .adh { gap: 6px; }
 }
 .cal-head .plan-linkname { display: inline-flex; align-items: center; gap: 7px; }
+
+/* ============================================================
+   Conceptos clave, trampas, dudas y explicaciones
+   ============================================================ */
+.concept-bulk {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px;
+  margin: 12px 0 4px;
+  background: var(--moss-soft);
+  border-radius: var(--radius-sm);
+}
+.concept-bulk .guide-fine { margin: 0; flex: 1; min-width: 200px; }
+.concept-bulk svg { width: 13px; height: 13px; }
+
+.concept-group { margin-top: 16px; }
+.concept-list { list-style: none; margin: 6px 0 0; padding: 0; }
+.concept {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--linen-2);
+}
+.concept-body { flex: 1; min-width: 0; }
+.concept h4 {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--pine);
+}
+.concept-d { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink); }
+.concept-why { margin: 6px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-soft); }
+.concept-x {
+  margin: 7px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  border-left: 2px solid var(--gold);
+  padding-left: 10px;
+}
+.concept-x strong { color: var(--ink); }
+.concept .guide-save { flex-shrink: 0; }
+
+.pitfall-list { list-style: none; margin: 12px 0 0; padding: 0; }
+.pitfall { padding: 12px 0; border-top: 1px solid var(--linen-2); }
+.pitfall:first-child { border-top: none; }
+.pitfall h4 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--pine);
+}
+.pitfall-wrong,
+.pitfall-right { margin: 4px 0; font-size: 13.5px; line-height: 1.55; display: flex; gap: 8px; }
+.pitfall-wrong { color: var(--ink-soft); }
+.pitfall-wrong span { color: var(--st-suspensa); font-weight: 700; }
+.pitfall-right span { color: var(--st-aprobada); font-weight: 700; }
+
+/* --- dudas --- */
+.doubt-add { display: flex; gap: 8px; margin: 12px 0; }
+.doubt-add input { flex: 1; min-width: 0; }
+.doubt-add .btn { flex-shrink: 0; }
+.doubt-add svg { width: 13px; height: 13px; }
+
+.doubt-list { list-style: none; margin: 10px 0 0; padding: 0; }
+.doubt {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 11px 0;
+  border-top: 1px solid var(--linen-2);
+}
+.doubt-body { flex: 1; min-width: 180px; }
+.doubt-text { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink); }
+.doubt-meta { display: block; margin-top: 3px; font-size: 11.5px; color: var(--ink-faint); }
+.doubt-answer-text {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  border-left: 2px solid var(--moss);
+  padding-left: 10px;
+}
+.doubt-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.doubt-actions svg { width: 13px; height: 13px; }
+.doubt-answer { flex: 1 0 100%; margin-top: 8px; }
+.doubt-answer .actions { margin-top: 8px; }
+.doubt-list.is-resolved .doubt-text { color: var(--ink-faint); }
+
+/* --- explicaciones --- */
+.explain-list { list-style: none; margin: 12px 0 0; padding: 0; }
+.explain { padding: 12px 0; border-top: 1px solid var(--linen-2); }
+.explain:first-child { border-top: none; }
+.explain-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.explain-head strong { font-size: 14px; color: var(--pine); }
+.explain-head .doubt-meta { margin: 0; }
+.explain-head .icon-btn { margin-left: auto; }
+.explain-text { margin: 6px 0 0; font-size: 14px; line-height: 1.6; white-space: pre-wrap; color: var(--ink); }
+
+/* --- cierre de la sesión de estudio --- */
+.focus-reflect { text-align: left; margin-top: 14px; }
+.focus-reflect h3 { margin-bottom: 2px; }
+.focus-reflect .field { margin-top: 12px; }
+
+@media (max-width: 560px) {
+  .concept { flex-direction: column; gap: 8px; }
+  .concept .guide-save { align-self: flex-start; }
+  .doubt-add { flex-direction: column; }
+}
+.doubt-row { width: 100%; text-align: left; background: none; border: none; font: inherit; cursor: pointer; }
+.doubt-row:hover { background: var(--linen-2); }
+.doubt-row:focus-visible { outline: 2px solid var(--moss); outline-offset: -2px; }

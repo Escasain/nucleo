@@ -15,6 +15,7 @@ export default function SearchModal({ onClose, navigate }) {
   const { data } = useStore()
   const [q, setQ] = useState('')
   const [guide, setGuide] = useState(null)
+  const [concepts, setConcepts] = useState(null)
   const [cursor, setCursor] = useState(0)
   const inputRef = useRef(null)
   const listRef = useRef(null)
@@ -23,12 +24,16 @@ export default function SearchModal({ onClose, navigate }) {
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
 
-  // La guía es un chunk aparte: se carga la primera vez que se abre la búsqueda.
+  // La guía y los conceptos son chunks aparte: se cargan la primera vez
+  // que se abre la búsqueda, no en el arranque de la app.
   useEffect(() => {
     let alive = true
     import('../data/guide/index.js')
       .then((m) => alive && setGuide(m.GUIDE))
       .catch(() => alive && setGuide({}))
+    import('../data/concepts/index.js')
+      .then((m) => alive && setConcepts(m.CONCEPTS))
+      .catch(() => alive && setConcepts({}))
     return () => {
       alive = false
     }
@@ -96,6 +101,22 @@ export default function SearchModal({ onClose, navigate }) {
         out.push({ kind: 'Notas', title: s?.name || sid, sub: 'coincidencia en tus notas', path: `/asignatura/${sid}`, Icon: IconBook })
       }
     }
+    if (concepts) {
+      for (const [sid, pack] of Object.entries(concepts)) {
+        const s = CURRICULUM.find((x) => x.id === sid)
+        for (const c of pack.concepts) {
+          if (norm(c.t).includes(t) || norm(c.d).includes(t)) {
+            out.push({
+              kind: 'Concepto',
+              title: c.t,
+              sub: `${s?.name || sid} · ${c.g}`,
+              path: `/asignatura/${sid}/guia`,
+              Icon: IconBook
+            })
+          }
+        }
+      }
+    }
     if (guide) {
       for (const [sid, g] of Object.entries(guide)) {
         const s = CURRICULUM.find((x) => x.id === sid)
@@ -113,7 +134,7 @@ export default function SearchModal({ onClose, navigate }) {
       }
     }
     return out.slice(0, 40)
-  }, [q, data, guide])
+  }, [q, data, guide, concepts])
 
   useEffect(() => {
     setCursor(0)

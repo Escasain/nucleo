@@ -80,13 +80,24 @@ function Shell() {
 
   let view
   if (route.name === 'plan') view = <Plan navigate={navigate} />
-  else if (route.name === 'subject') view = <SubjectDetail id={route.id} navigate={navigate} />
+  else if (route.name === 'subject') view = <SubjectDetail key={route.id} id={route.id} tab={route.tab} navigate={navigate} />
   else if (route.name === 'calendario') view = <StudyOverview navigate={navigate} selectedDay={route.day} />
   else if (route.name === 'agenda') view = <Agenda navigate={navigate} />
   else if (route.name === 'estudio') view = <Study subjectId={route.subjectId} navigate={navigate} />
   else if (route.name === 'progreso') view = <Progress navigate={navigate} />
   else if (route.name === 'sesion')
-    view = <Focus subjectId={route.subjectId} unitId={route.unitId} navigate={navigate} />
+    // La key fuerza remontar al cambiar de unidad: si no, encadenar dos
+    // sesiones seguidas arrastraría el cronómetro y la pantalla de
+    // «sesión registrada» de la anterior. Además hace que al salir se
+    // guarde el rato de la que dejas, como en cualquier otra salida.
+    view = (
+      <Focus
+        key={`${route.subjectId}/${route.unitId}`}
+        subjectId={route.subjectId}
+        unitId={route.unitId}
+        navigate={navigate}
+      />
+    )
   else if (route.name === 'ajustes') view = <Settings onHelp={() => setHelp(true)} />
   else view = <Dashboard navigate={navigate} />
 
