@@ -6,6 +6,7 @@ import Checkbox from '../components/Checkbox.jsx'
 import Modal from '../components/Modal.jsx'
 import { IconPlus, IconTrash } from '../components/Icons.jsx'
 import { TaskModal } from './SubjectDetail.jsx'
+import StudyOverview from '../modules/study-planner/StudyOverview.jsx'
 
 const WEEKDAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
@@ -14,7 +15,7 @@ export default function Agenda({ navigate }) {
   const { data, dispatch } = useStore()
   const [showDone, setShowDone] = useState(false)
   const [modal, setModal] = useState(false)
-  const [view, setView] = useState('lista') // 'lista' | 'mes'
+  const [view, setView] = useState('lista') // 'lista' | 'mes' | 'horario' | 'planificador'
 
   const subjName = (id) => CURRICULUM.find((s) => s.id === id)?.name || '—'
 
@@ -40,7 +41,7 @@ export default function Agenda({ navigate }) {
       <div className="page-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1>Agenda</h1>
-          <div className="sub">Entregas, exámenes, horario semanal y calendario del curso</div>
+          <div className="sub">Entregas, exámenes, horario semanal y calendario de estudio</div>
         </div>
         <button className="btn btn-primary" onClick={() => setModal(true)}>
           <IconPlus style={{ width: 14, height: 14 }} aria-hidden="true" /> Nueva evaluación
@@ -56,6 +57,14 @@ export default function Agenda({ navigate }) {
         </button>
         <button role="tab" aria-selected={view === 'horario'} className={view === 'horario' ? 'active' : ''} onClick={() => setView('horario')}>
           Horario semanal
+        </button>
+        <button
+          role="tab"
+          aria-selected={view === 'planificador'}
+          className={view === 'planificador' ? 'active' : ''}
+          onClick={() => setView('planificador')}
+        >
+          Planificador
         </button>
       </div>
 
@@ -119,6 +128,8 @@ export default function Agenda({ navigate }) {
       {view === 'mes' && <MonthView data={data} navigate={navigate} subjName={subjName} />}
 
       {view === 'horario' && <WeeklySchedule data={data} dispatch={dispatch} subjects={relevantSubjects} subjName={subjName} />}
+
+      {view === 'planificador' && <StudyOverview navigate={navigate} />}
 
       {modal && (
         <TaskModal

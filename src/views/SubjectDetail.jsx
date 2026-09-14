@@ -8,10 +8,12 @@ import Modal from '../components/Modal.jsx'
 import Checkbox from '../components/Checkbox.jsx'
 // La guía trae bastante contenido: se carga solo al abrir una asignatura.
 const StudyGuide = lazy(() => import('../components/StudyGuide.jsx'))
+const SubjectPlan = lazy(() => import('../modules/study-planner/SubjectPlan.jsx'))
 import { IconArrowLeft, IconPlus, IconTrash, IconDrive, IconLink, IconCards, IconExternal } from '../components/Icons.jsx'
 
 const TABS = [
   { id: 'guia', label: 'Guía de estudio' },
+  { id: 'calendario', label: 'Calendario' },
   { id: 'clases', label: 'Clases y sesiones' },
   { id: 'recursos', label: 'Recursos' },
   { id: 'evaluaciones', label: 'Evaluaciones' },
@@ -159,6 +161,12 @@ export default function SubjectDetail({ id, navigate }) {
       {tab === 'guia' && (
         <Suspense fallback={<div className="empty">Cargando la guía de estudio…</div>}>
           <StudyGuide subjectId={id} />
+        </Suspense>
+      )}
+
+      {tab === 'calendario' && (
+        <Suspense fallback={<div className="empty">Cargando el calendario…</div>}>
+          <SubjectPlan subjectId={id} navigate={navigate} />
         </Suspense>
       )}
 

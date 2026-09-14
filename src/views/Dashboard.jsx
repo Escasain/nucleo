@@ -5,8 +5,7 @@ import { todayISO, relativeLabel, minutesLabel, dayNum, monthShort, isOverdue, f
 import { weekMinutes, streak, transcript } from '../lib/stats.js'
 import Checkbox from '../components/Checkbox.jsx'
 import { IconCards, IconCalendar, IconBook, IconDrive } from '../components/Icons.jsx'
-
-const WEEKDAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+import { StudySummary } from '../modules/study-planner/StudyOverview.jsx'
 
 export default function Dashboard({ navigate }) {
   const { data, dispatch, syncStatus } = useStore()
@@ -237,6 +236,10 @@ export default function Dashboard({ navigate }) {
             </div>
           </div>
         </div>
+      </div>
+
+      <div style={{ marginTop: 20 }}>
+        <StudySummary navigate={navigate} />
       </div>
 
       <div className="grid-3" style={{ margin: '20px 0' }}>

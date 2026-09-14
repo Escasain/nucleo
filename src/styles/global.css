@@ -29,6 +29,15 @@
   --block-mar: #a9c99a;
   --block-may: #e5b58f;
 
+  /* Planificador: un color por asignatura activa. Dos asignaturas del
+     mismo bloque comparten color de bloque, así que la leyenda del
+     calendario necesita su propia serie, tomada de la misma paleta. */
+  --plan-1: #2f4a3c;
+  --plan-2: #a07b3c;
+  --plan-3: #4f6d8c;
+  --plan-4: #a2614d;
+  --plan-5: #6b7f5e;
+
   /* Estados de asignatura */
   --st-pendiente: #b9b3a4;
   --st-matriculada: #a8c6df;
@@ -871,4 +880,167 @@ a.guide-res-title:hover { color: var(--pine); text-decoration: underline; }
   .block-pills { grid-template-columns: 1fr; }
   .month-day { min-height: 40px; }
   .help-keys td:first-child { width: auto; white-space: normal; }
+}
+
+/* ---------- Planificador de estudio ---------- */
+.plan-stack { display: flex; flex-direction: column; gap: 16px; }
+.plan-stack > .card + .card { margin-top: 0; }
+.plan-sub { margin: 4px 0 0; font-size: 13.5px; color: var(--ink-soft); max-width: 52ch; line-height: 1.5; }
+.plan-note {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  background: var(--linen-2);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+}
+.plan-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+.plan-grow { flex: 1; min-width: 0; }
+.plan-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+.plan-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.plan-more { margin-top: 10px; }
+
+.plan-count { font-family: var(--font-display); font-size: 40px; font-weight: 700; color: var(--pine); line-height: 1; }
+.plan-count-unit { font-size: 15px; color: var(--ink-soft); font-family: var(--font-body); font-weight: 500; }
+.plan-herotitle { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 2px 0 0; }
+.plan-weektotal { text-align: right; }
+.plan-weektotal strong { font-family: var(--font-display); font-size: 22px; color: var(--pine); display: block; line-height: 1.1; }
+.plan-weektotal span { font-size: 11.5px; color: var(--ink-faint); }
+
+/* barras de presión */
+.plan-pressures { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--linen-2); padding-top: 14px; margin-top: 14px; }
+.plan-pressure-top { display: flex; align-items: center; gap: 8px; font-size: 13.5px; margin-bottom: 5px; }
+.plan-pressure-top strong { font-weight: 600; }
+.plan-days { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.plan-bar { position: relative; height: 7px; background: var(--linen-3); border-radius: 999px; overflow: hidden; }
+.plan-bar-done, .plan-bar-plan { position: absolute; top: 0; left: 0; height: 100%; border-radius: 999px; }
+.plan-bar-plan { opacity: 0.28; }
+.plan-warn { margin: 6px 0 0; font-size: 12.5px; color: var(--st-suspensa); line-height: 1.45; }
+.plan-warn-block { background: var(--clay-soft); border-radius: var(--radius-sm); padding: 10px 13px; margin: 0; font-size: 13px; }
+.plan-linkname {
+  background: none; border: none; padding: 0; font: inherit; font-weight: 600;
+  color: var(--pine); cursor: pointer; text-align: left;
+}
+.plan-linkname:hover { text-decoration: underline; }
+
+/* editor de horas */
+.plan-hours { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; }
+.plan-hourcell { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 9px 4px; text-align: center; background: var(--linen-2); }
+.plan-hourcell.is-off { opacity: 0.6; }
+.plan-hourday { display: block; font-size: 11.5px; color: var(--ink-faint); margin-bottom: 6px; font-weight: 600; }
+.plan-stepper { display: inline-flex; align-items: center; gap: 3px; }
+.plan-stepper button {
+  width: 23px; height: 23px; flex-shrink: 0;
+  border-radius: 6px; border: 1px solid var(--line); background: var(--paper);
+  color: var(--pine); font-size: 15px; line-height: 1; display: grid; place-items: center; padding: 0;
+}
+.plan-stepper button:hover { background: var(--pine); color: var(--linen); border-color: var(--pine); }
+.plan-stepper > span { min-width: 44px; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.plan-stepper > span.is-custom { color: var(--clay); font-weight: 600; }
+.plan-clear { font-size: 12px !important; }
+
+/* calendario */
+.plan-legend { display: flex; gap: 6px; flex-wrap: wrap; }
+.plan-legend-item {
+  background: var(--linen-2); border: 1px solid var(--line); border-radius: 999px;
+  padding: 4px 11px; font-size: 12px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 6px; color: var(--ink);
+}
+.plan-legend-item:hover { border-color: var(--moss); background: var(--moss-soft); }
+.plan-calhead { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
+.plan-calhead span { font-size: 11px; color: var(--ink-faint); font-weight: 600; padding-left: 3px; }
+.plan-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
+.plan-day {
+  display: flex; flex-direction: column; gap: 3px; min-height: 92px; text-align: left;
+  background: var(--linen-2); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 6px; overflow: hidden; font-family: var(--font-body); color: var(--ink);
+}
+.plan-day:hover { border-color: var(--moss); }
+.plan-day.is-past { opacity: 0.42; }
+.plan-day.is-free { background: transparent; border-style: dashed; }
+.plan-day.is-today { border-color: var(--pine); box-shadow: inset 0 0 0 1px var(--pine); }
+.plan-day.is-selected { background: var(--paper); border-color: var(--pine); }
+.plan-daynum { font-size: 11.5px; color: var(--ink-faint); font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 4px; }
+.plan-daynum em { font-style: normal; color: var(--pine); font-weight: 600; }
+.plan-dayweek { display: none; }
+.plan-tweak { width: 5px; height: 5px; border-radius: 50%; background: var(--clay); display: inline-block; }
+.plan-item {
+  font-size: 10.5px; line-height: 1.3; color: var(--paper); border-radius: 5px; padding: 3px 5px;
+  display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.plan-item em { font-style: normal; opacity: 0.75; margin-right: 4px; }
+.plan-exam { font-size: 10.5px; border: 1px solid; border-radius: 5px; padding: 3px 5px; font-weight: 700; }
+.plan-freelabel { font-size: 11px; color: var(--ink-faint); }
+.plan-dayedit {
+  margin-top: 14px; border-top: 1px solid var(--linen-2); padding-top: 14px;
+  display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;
+}
+.plan-dayedit h4 { font-family: var(--font-display); font-size: 16px; margin: 0; text-transform: capitalize; }
+.plan-dayedit p { margin: 3px 0 0; font-size: 13px; }
+.plan-dayedit-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* resumen en Inicio */
+.plan-summary { border-left: 4px solid var(--pine); }
+.plan-todaylist { list-style: none; margin: 12px 0 0; padding: 0; font-size: 13px; }
+.plan-todaylist li { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+.plan-todayh { font-family: var(--font-display); font-weight: 600; color: var(--pine); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.plan-todaytitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* asignatura */
+.plan-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.plan-stats > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.plan-stats strong { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--pine); line-height: 1.1; }
+.plan-stats strong.is-deficit { color: var(--st-suspensa); }
+.plan-stats span { font-size: 11.5px; color: var(--ink-soft); line-height: 1.35; }
+.plan-group { margin-bottom: 18px; }
+.plan-group:last-child { margin-bottom: 0; }
+.plan-groupname {
+  margin: 0 0 8px; font-family: var(--font-body); font-size: 11.5px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint);
+  border-bottom: 1px solid var(--linen-2); padding-bottom: 6px;
+}
+.plan-unit { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--linen-2); }
+.plan-unit:last-child { border-bottom: none; }
+.plan-unit.is-done .plan-unittitle { text-decoration: line-through; color: var(--ink-faint); }
+.plan-unit.is-out { opacity: 0.6; }
+.plan-unitbody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.plan-unittitle { font-size: 14px; font-weight: 500; }
+.plan-unitmeta { display: flex; gap: 8px; align-items: center; font-size: 12px; flex-wrap: wrap; }
+.plan-kind { font-style: normal; border-radius: 4px; padding: 1px 7px; background: var(--linen-2); color: var(--ink-faint); font-size: 11px; font-weight: 600; }
+.plan-kind.is-base { background: var(--pine-soft); color: var(--pine); }
+.plan-kind.is-lab { background: var(--moss-soft); color: #4c5b3c; }
+.plan-kind.is-repaso { background: var(--clay-soft); color: #8a5533; }
+.plan-later { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.plan-later li { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.plan-later li .muted { margin-left: auto; font-size: 12.5px; white-space: nowrap; }
+
+/* foco por teclado, con el mismo tratamiento que el resto de la app */
+.plan-day:focus-visible,
+.plan-stepper button:focus-visible,
+.plan-legend-item:focus-visible,
+.plan-linkname:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 860px) {
+  .plan-stats { grid-template-columns: repeat(2, 1fr); }
+  .plan-hours { grid-template-columns: repeat(4, 1fr); }
+  /* El calendario deja de ser rejilla y pasa a lista de días. */
+  .plan-calhead { display: none; }
+  .plan-week { grid-template-columns: 1fr; gap: 5px; margin-bottom: 5px; }
+  .plan-day { min-height: 0; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 10px; }
+  .plan-day.is-past { display: none; }
+  .plan-dayweek { display: inline; text-transform: uppercase; font-weight: 700; margin-right: 2px; }
+  .plan-daynum { min-width: 58px; }
+  .plan-item, .plan-exam { flex: 1 1 100%; white-space: normal; }
+  .plan-count { font-size: 32px; }
+}
+
+@media (max-width: 480px) {
+  .plan-hours { grid-template-columns: repeat(2, 1fr); }
+  .plan-stats { grid-template-columns: 1fr; }
+  .plan-head { flex-direction: column; }
+  .plan-weektotal { text-align: left; }
 }

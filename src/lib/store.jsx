@@ -22,6 +22,16 @@ export const DEFAULT_SETTINGS = {
   lastExportAt: null
 }
 
+// Planificador de estudio. weekHours en null significa «aún sin tocar»:
+// el planificador lo siembra desde el horario semanal (data.schedule) y
+// solo pasa a ser un array propio cuando ajustas un día a mano.
+export const DEFAULT_PLANNER = {
+  weekHours: null,
+  exceptions: {},
+  done: {},
+  hourOverrides: {}
+}
+
 export function emptyData() {
   return {
     version: APP_VERSION,
@@ -34,7 +44,8 @@ export function emptyData() {
     pomodoro: [],
     schedule: [],
     topicProgress: {},
-    settings: { ...DEFAULT_SETTINGS }
+    settings: { ...DEFAULT_SETTINGS },
+    planner: { ...DEFAULT_PLANNER }
   }
 }
 
@@ -70,8 +81,40 @@ export function normalize(raw) {
         { done: asArray(v && v.done), total: Number(v && v.total) || 0 }
       ])
     ),
-    settings: { ...DEFAULT_SETTINGS, ...asObject(raw.settings) }
+    settings: { ...DEFAULT_SETTINGS, ...asObject(raw.settings) },
+    planner: normalizePlanner(raw.planner)
   }
+}
+
+// El planificador guarda horas y marcas por unidad: si algo viene con
+// el tipo cambiado (copia antigua, edición a mano del JSON) se descarta
+// en vez de propagar NaN por todo el calendario.
+function normalizePlanner(raw) {
+  const p = asObject(raw)
+  const hours = Array.isArray(p.weekHours) && p.weekHours.length === 7
+    ? p.weekHours.map((h) => clampHours(h, 0, 12, 0))
+    : null
+  const exceptions = {}
+  for (const [k, v] of Object.entries(asObject(p.exceptions))) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(k) && Number.isFinite(Number(v))) {
+      exceptions[k] = clampHours(v, 0, 12, 0)
+    }
+  }
+  const done = {}
+  for (const [k, list] of Object.entries(asObject(p.done))) {
+    done[k] = asArray(list).filter((x) => typeof x === 'string')
+  }
+  const hourOverrides = {}
+  for (const [k, v] of Object.entries(asObject(p.hourOverrides))) {
+    if (Number.isFinite(Number(v))) hourOverrides[k] = clampHours(v, 0.5, 20, 0.5)
+  }
+  return { weekHours: hours, exceptions, done, hourOverrides }
+}
+
+export function clampHours(value, min, max, fallback) {
+  const n = Number(value)
+  if (!Number.isFinite(n)) return fallback
+  return +Math.max(min, Math.min(max, n)).toFixed(1)
 }
 
 function loadLocal() {
@@ -211,6 +254,9 @@ function reducer(data, action) {
         }
       })
     }
+
+    case 'setPlanner':
+      return stamp({ ...data, planner: { ...data.planner, ...action.patch } })
 
     case 'setSettings':
       return stamp({ ...data, settings: { ...data.settings, ...action.patch } })
