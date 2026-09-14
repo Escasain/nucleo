@@ -160,22 +160,26 @@ export function weeklyAdherence(data, plannerState, schedule, weeks = 6, today =
 }
 
 /**
- * Ritmo real: media de horas por semana de las últimas `weeks` semanas
+ * Ritmo real: media de horas por semana de las últimas semanas
  * completas. Se ignora la semana en curso, que siempre va a medias y
- * hundiría la media.
+ * hundiría la media, y también las anteriores a tu primer registro:
+ * esas no son «cero horas», es que aún no usabas la app. Contarlas
+ * haría parecer lento a quien acaba de empezar, y de rebote pesimistas
+ * todas las proyecciones.
  */
 export function realPace(data, weeks = 4, today = new Date()) {
   const byDay = minutesByDay(data)
+  const first = firstActivityISO(data)
+  const firstWeek = first ? startOfWeek(parseISO(first)) : null
   const thisWeek = startOfWeek(today)
   let total = 0
   let counted = 0
   let withStudy = 0
   for (let w = 1; w <= weeks; w++) {
     const from = addDays(thisWeek, -7 * w)
+    if (!firstWeek || from < firstWeek) continue
     let min = 0
     for (let i = 0; i < 7; i++) min += byDay[toISO(addDays(from, i))] || 0
-    // Solo cuentan las semanas desde que hay algún registro: las
-    // anteriores a empezar a usar la app no son ritmo cero, son nada.
     counted++
     total += min
     if (min > 0) withStudy++
@@ -184,30 +188,6 @@ export function realPace(data, weeks = 4, today = new Date()) {
     weeks: counted,
     weeksWithStudy: withStudy,
     hoursPerWeek: counted > 0 ? +(total / 60 / counted).toFixed(2) : 0
-  }
-}
-
-/**
- * A tu ritmo real, ¿te da tiempo antes del examen?
- *
- * `neededPerWeek` es lo que haría falta para cubrir lo que queda; si tu
- * ritmo real se queda por debajo, `shortfallH` dice cuántas horas te
- * faltarían al llegar la fecha.
- */
-export function paceCheck(remainingH, examISO, hoursPerWeek, today = new Date()) {
-  if (!examISO) return null
-  const exam = parseISO(examISO)
-  const days = Math.round((startOfDay(exam) - startOfDay(today)) / 86400000)
-  if (days <= 0) return null
-  const weeksLeft = days / 7
-  const needed = remainingH / weeksLeft
-  const willDo = hoursPerWeek * weeksLeft
-  return {
-    daysLeft: days,
-    neededPerWeek: +needed.toFixed(2),
-    hoursPerWeek: +hoursPerWeek.toFixed(2),
-    shortfallH: +Math.max(0, remainingH - willDo).toFixed(1),
-    onTrack: hoursPerWeek >= needed
   }
 }
 

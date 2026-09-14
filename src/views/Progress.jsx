@@ -9,19 +9,19 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from '../lib/store.jsx'
 import { usePlanner } from '../modules/study-planner/PlannerProvider.jsx'
-import { hoursLabel } from '../modules/study-planner/planner-engine.js'
+import { hoursLabel, buildSchedule } from '../modules/study-planner/planner-engine.js'
 import {
   calibrationFor,
   roundFactor,
   weeklyAdherence,
   realPace,
-  paceCheck,
   heatmap,
   heatLevel,
-  firstActivityISO
+  firstActivityISO,
+  startOfWeek
 } from '../lib/calibration.js'
 import { transcript } from '../lib/stats.js'
-import { formatShort, formatLong, minutesLabel } from '../lib/dates.js'
+import { toISO, parseISO, formatShort, formatLong, minutesLabel } from '../lib/dates.js'
 import { TOTAL_ECTS } from '../data/curriculum.js'
 
 const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
@@ -39,23 +39,43 @@ export default function Progress({ navigate }) {
   const heat = useMemo(() => heatmap(data, 364, today), [data, today])
   const tr = useMemo(() => transcript(data), [data])
 
+  // Qué parte de lo que te propusiste acabas cumpliendo, en las semanas
+  // ya cerradas. Solo cuentan desde tu primer registro: antes de empezar
+  // a usar la app no cumplías el 0 %, es que no había nada que cumplir, y
+  // contarlo proyectaría un desastre a quien acaba de entrar.
+  const ratio = useMemo(() => {
+    if (!started) return null
+    const desde = toISO(startOfWeek(parseISO(started)))
+    const past = weeks.filter((w) => w.past && w.plannedH > 0 && w.key >= desde)
+    if (!past.length) return null
+    return past.reduce((a, w) => a + w.realH, 0) / past.reduce((a, w) => a + w.plannedH, 0)
+  }, [weeks, started])
+
+  // Proyección realista: el mismo calendario, pero con las horas
+  // semanales escaladas a lo que de verdad cumples. Lo calcula el motor
+  // del planificador, no una cuenta aparte: así el reparto entre
+  // asignaturas, las ventanas de cada una y las fechas de examen se
+  // respetan igual que en el calendario de verdad. Repartir a mano un
+  // «ritmo global» por asignatura daría a cada una el total, y dos
+  // asignaturas podrían salir ambas como que llegan siendo imposible.
+  const realistic = useMemo(() => {
+    if (ratio == null || ratio >= 0.98 || !Array.isArray(state.weekHours)) return null
+    const scaled = state.weekHours.map((h) => +(h * ratio).toFixed(2))
+    return buildSchedule(subjects, { ...state, weekHours: scaled }, today)
+  }, [ratio, subjects, state, today])
+
   const rows = useMemo(
     () =>
       subjects
         .filter((s) => s.units.length > 0)
-        .map((s) => {
-          const meta = schedule.meta[s.id]
-          const cal = calibrationFor(s, state, data)
-          const applied = state.paceFactor?.[s.id] || null
-          return {
-            subject: s,
-            meta,
-            cal,
-            applied,
-            check: meta ? paceCheck(meta.remainingHours, s.exam, pace.hoursPerWeek, today) : null
-          }
-        }),
-    [subjects, schedule, state, data, pace.hoursPerWeek, today]
+        .map((s) => ({
+          subject: s,
+          meta: schedule.meta[s.id],
+          cal: calibrationFor(s, state, data),
+          applied: state.paceFactor?.[s.id] || null,
+          realDeficit: realistic ? realistic.meta[s.id]?.deficit ?? null : null
+        })),
+    [subjects, schedule, state, data, realistic]
   )
 
   const anySample = rows.some((r) => r.cal.samples > 0)
@@ -77,7 +97,7 @@ export default function Progress({ navigate }) {
         </div>
       )}
 
-      <Adherence weeks={weeks} pace={pace} />
+      <Adherence weeks={weeks} pace={pace} ratio={ratio} />
 
       <div className="card">
         <h3 style={{ marginBottom: 2 }}>Tus estimaciones frente a la realidad</h3>
@@ -90,7 +110,7 @@ export default function Progress({ navigate }) {
         ) : (
           <ul className="cal-list">
             {rows.map((r) => (
-              <CalibrationRow key={r.subject.id} row={r} onApply={setPaceFactor} navigate={navigate} hasPace={pace.weeksWithStudy > 0} />
+              <CalibrationRow key={r.subject.id} row={r} onApply={setPaceFactor} navigate={navigate} ratio={ratio} />
             ))}
           </ul>
         )}
@@ -130,12 +150,8 @@ export default function Progress({ navigate }) {
 
 /* ------------------------------------------- adherencia semanal */
 
-function Adherence({ weeks, pace }) {
+function Adherence({ weeks, pace, ratio }) {
   const max = Math.max(1, ...weeks.map((w) => Math.max(w.plannedH, w.realH)))
-  const past = weeks.filter((w) => w.past && w.plannedH > 0)
-  const ratio = past.length
-    ? past.reduce((a, w) => a + w.realH, 0) / past.reduce((a, w) => a + w.plannedH, 0)
-    : null
 
   return (
     <div className="card">
@@ -157,7 +173,9 @@ function Adherence({ weeks, pace }) {
       <div className="stats-row" style={{ marginTop: 14 }}>
         <div>
           <div className="stat-num">{pace.hoursPerWeek.toFixed(1).replace('.', ',')} h</div>
-          <div className="stat-lbl">ritmo real · media de 4 semanas</div>
+          <div className="stat-lbl">
+            {pace.weeks > 0 ? `ritmo real · media de ${pace.weeks} semana${pace.weeks === 1 ? '' : 's'}` : 'ritmo real'}
+          </div>
         </div>
         <div>
           <div className="stat-num">{ratio == null ? '—' : `${Math.round(ratio * 100)} %`}</div>
@@ -165,7 +183,9 @@ function Adherence({ weeks, pace }) {
         </div>
         <div>
           <div className="stat-num">{pace.weeksWithStudy}</div>
-          <div className="stat-lbl">de 4 semanas con estudio</div>
+          <div className="stat-lbl">
+            {pace.weeks > 0 ? `de ${pace.weeks} semana${pace.weeks === 1 ? '' : 's'} con estudio` : 'semanas con estudio'}
+          </div>
         </div>
       </div>
       {ratio != null && ratio < 0.7 && (
@@ -181,11 +201,15 @@ function Adherence({ weeks, pace }) {
 
 /* ------------------------------------------- calibración por asignatura */
 
-function CalibrationRow({ row, onApply, navigate, hasPace }) {
-  const { subject, meta, cal, applied, check } = row
+function CalibrationRow({ row, onApply, navigate, ratio }) {
+  const { subject, meta, cal, applied, realDeficit } = row
   const [open, setOpen] = useState(false)
   const suggested = roundFactor(cal.factor)
   const pct = suggested == null ? null : Math.round((suggested - 1) * 100)
+  // Solo tiene sentido proyectar si queda temario y si cumplir de menos
+  // cambia algo respecto a lo que ya dice el calendario.
+  const proyecta = realDeficit != null && meta && meta.remainingHours > 0
+  const empeora = proyecta && realDeficit > meta.deficit + 0.5
 
   return (
     <li className="cal-item">
@@ -239,23 +263,24 @@ function CalibrationRow({ row, onApply, navigate, hasPace }) {
         </div>
       )}
 
-      {check && meta && meta.remainingHours > 0 && hasPace && (
+      {proyecta && (
         <button
           type="button"
-          className={`cal-pace${check.onTrack ? ' is-ok' : ''}`}
+          className={`cal-pace${empeora ? '' : ' is-ok'}`}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
         >
-          {check.onTrack
-            ? `A tu ritmo llegas: quedan ${hoursLabel(meta.remainingHours)} y ${check.daysLeft} días.`
-            : `A tu ritmo te faltarían ${hoursLabel(check.shortfallH)} al llegar el examen.`}
+          {empeora
+            ? `Cumpliendo el ${Math.round(ratio * 100)} % de tus horas, como hasta ahora, te faltarían ${hoursLabel(realDeficit)} antes del examen.`
+            : `Aun cumpliendo solo el ${Math.round(ratio * 100)} % de tus horas, el temario sigue entrando.`}
         </button>
       )}
-      {open && check && (
+      {open && proyecta && (
         <p className="guide-fine cal-pace-detail">
-          Quedan {hoursLabel(meta.remainingHours)} en {check.daysLeft} días, o sea{' '}
-          <strong>{hoursLabel(check.neededPerWeek)} por semana</strong>. Tu ritmo real de las últimas cuatro semanas es
-          de {hoursLabel(check.hoursPerWeek)} por semana, repartidas entre todas las asignaturas.
+          El calendario cuenta con {hoursLabel(meta.remainingHours)} pendientes y{' '}
+          {meta.deficit > 0 ? `deja ${hoursLabel(meta.deficit)} fuera` : 'dice que el temario cabe'}, pero dando por
+          hecho que cumples tus horas enteras. Rehaciendo ese mismo reparto con el {Math.round(ratio * 100)} % que
+          vienes cumpliendo, lo que se queda fuera son {hoursLabel(realDeficit)}.
         </p>
       )}
     </li>

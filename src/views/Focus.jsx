@@ -38,6 +38,13 @@ export default function Focus({ subjectId, unitId, navigate }) {
   const [running, setRunning] = useState(false)
   const [saved, setSaved] = useState(null)
   const nextBreak = useRef(BREAK_EVERY_MIN * 60)
+  // El tiempo sale del reloj, no de contar tics: el navegador frena los
+  // temporizadores de una pestaña en segundo plano y los suspende al
+  // bloquear el móvil. Contando tics, abrir uno de los recursos de la
+  // sesión haría que el rato contara de menos, y eso es justo el dato
+  // del que vive la calibración.
+  const elapsedMs = useRef(0) // acumulado de los tramos ya cerrados
+  const startedAt = useRef(0) // instante en que arrancó el tramo actual
 
   const subject = subjectById(subjectId)
   const plan = planFor(subjectId)
@@ -61,9 +68,28 @@ export default function Focus({ subjectId, unitId, navigate }) {
 
   useEffect(() => {
     if (!running) return undefined
-    const t = setInterval(() => setSeconds((s) => s + 1), 1000)
-    return () => clearInterval(t)
+    const tick = () => setSeconds(Math.floor((elapsedMs.current + (Date.now() - startedAt.current)) / 1000))
+    tick()
+    const t = setInterval(tick, 1000)
+    // Al volver a la pestaña, el número se pone al día sin esperar al
+    // siguiente tic (que puede venir frenado).
+    const onVisible = () => document.visibilityState === 'visible' && tick()
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      clearInterval(t)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
   }, [running])
+
+  const start = useCallback(() => {
+    startedAt.current = Date.now()
+    setRunning(true)
+  }, [])
+  const pause = useCallback(() => {
+    elapsedMs.current += Date.now() - startedAt.current
+    setSeconds(Math.floor(elapsedMs.current / 1000))
+    setRunning(false)
+  }, [])
 
   // El aviso de descanso vive en su propio efecto: lanzarlo dentro del
   // actualizador del contador se ejecutaría dos veces en StrictMode.
@@ -114,28 +140,49 @@ export default function Focus({ subjectId, unitId, navigate }) {
 
   const minutes = Math.floor(seconds / 60)
 
+  const record = useCallback(
+    (mins) =>
+      dispatch({
+        type: 'addSession',
+        session: {
+          subjectId,
+          unitId,
+          title: unit ? unit.t : 'Sesión de estudio',
+          date: todayISO(),
+          type: 'estudio',
+          durationMin: mins,
+          done: true,
+          notes: ''
+        }
+      }),
+    [dispatch, subjectId, unitId, unit]
+  )
+
   const finish = useCallback(
     (alsoDone) => {
       setRunning(false)
-      if (minutes >= 1) {
-        dispatch({
-          type: 'addSession',
-          session: {
-            subjectId,
-            unitId,
-            title: unit ? unit.t : 'Sesión de estudio',
-            date: todayISO(),
-            type: 'estudio',
-            durationMin: minutes,
-            done: true,
-            notes: ''
-          }
-        })
-      }
+      if (minutes >= 1) record(minutes)
       if (alsoDone) markDone(subjectId, unitId)
       setSaved({ minutes, marked: Boolean(alsoDone) })
     },
-    [minutes, dispatch, subjectId, unitId, unit, markDone]
+    [minutes, record, subjectId, unitId, markDone]
+  )
+
+  // Salir de la vista no puede tirar el rato a la basura. El aviso del
+  // navegador solo cubre cerrar la pestaña: una navegación por hash (el
+  // botón de volver, cualquier enlace del menú) desmonta la vista sin
+  // pasar por él. Así que al desmontar se guarda lo que llevases, sin
+  // marcar la unidad como hecha: eso solo lo decides tú.
+  const onExit = useRef(null)
+  onExit.current = { minutes, done: Boolean(saved), record, toast, title: unit?.t }
+  useEffect(
+    () => () => {
+      const x = onExit.current
+      if (!x || x.done || x.minutes < 1) return
+      x.record(x.minutes)
+      x.toast(`${minutesLabel(x.minutes)} guardados en «${x.title}»`)
+    },
+    []
   )
 
   if (!plan || !unit) {
@@ -224,11 +271,11 @@ export default function Focus({ subjectId, unitId, navigate }) {
         </div>
         <div className="focus-actions">
           {!running ? (
-            <button type="button" className="btn btn-primary" onClick={() => setRunning(true)}>
+            <button type="button" className="btn btn-primary" onClick={start}>
               {seconds > 0 ? 'Seguir' : 'Empezar'}
             </button>
           ) : (
-            <button type="button" className="btn btn-secondary" onClick={() => setRunning(false)}>
+            <button type="button" className="btn btn-secondary" onClick={pause}>
               Pausa
             </button>
           )}
