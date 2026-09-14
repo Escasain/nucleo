@@ -20,7 +20,7 @@ export const CURRICULUM = [
   // ---------- AÑO 1 ----------
   { id: 'algebra', year: 1, block: 'sep', name: 'Álgebra y Matemática Discreta' },
   { id: 'fisica', year: 1, block: 'sep', name: 'Fundamentos Físicos de la Informática' },
-  { id: 'tec-comp', year: 1, block: 'sep', name: 'Tecnología de Computadores' },
+  { id: 'tec-comp', year: 1, block: 'nov', name: 'Tecnología de Computadores' },
   {
     id: 'fund-prog', year: 1, block: 'nov', name: 'Fundamentos de Programación',
     keyFor: 'prog-avanzada', note: 'Llave de «Programación Avanzada»'

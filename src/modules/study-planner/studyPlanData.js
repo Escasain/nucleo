@@ -81,27 +81,59 @@ export const STUDY_PLANS = {
 
   // ---------------------------------------------------------------
   // Tecnología de Computadores · PROVISIONAL
-  // Estructura inventada para que la asignatura entre en el reparto.
-  // Sustituye temas y horas cuando tengas el temario real; la interfaz
-  // avisa de que estos datos no son definitivos.
+  //
+  // Los diez temas salen del temario habitual de la asignatura (el
+  // mismo que documenta su guía de estudio en data/guide/year1.js),
+  // no de la guía docente de UNIPRO, que no es pública. Las horas son
+  // una estimación por peso, calibrada para unas 64 h como en Álgebra,
+  // que también son 6 ECTS.
+  //
+  // Fechas confirmadas por Carlos: la asignatura va del 9 de noviembre
+  // al 23 de diciembre de 2026, o sea el bloque de noviembre, no el de
+  // septiembre. No se solapa con Álgebra, que cierra el 6-8 de nov.
+  //
+  // Cuando tengas la guía oficial, sustituye títulos y horas aquí: no
+  // hay que tocar ningún componente. La interfaz avisa de que el plan
+  // es provisional mientras siga esta marca.
   // ---------------------------------------------------------------
   'tec-comp': {
     short: 'TC',
     color: 'var(--plan-2)',
-    start: '2026-09-15',
-    examHint: '2026-11-06',
-    examLabel: 'Prueba final · fecha por confirmar',
+    start: '2026-11-09',
+    examHint: '2026-12-23',
+    examLabel: 'Examen por confirmar',
     provisional: true,
     units: [
-      ...Array.from({ length: 8 }, (_, i) => ({
-        id: `tc${i + 1}`,
-        t: `Tema ${i + 1} · por definir`,
-        h: 3,
-        kind: 'tema'
-      })),
-      { id: 'tcl1', t: 'Laboratorio 1', h: 2, kind: 'lab' },
-      { id: 'tcl2', t: 'Laboratorio 2', h: 2, kind: 'lab' },
-      { id: 'tcr', t: 'Repaso y simulacro', h: 3, kind: 'repaso' }
+      { id: 'b1', t: 'Base · Sistemas de numeración y cambios de base', h: 1.5, kind: 'base' },
+      { id: 't1a', t: 'T1 · Binario, octal y hexadecimal: conversiones', h: 2, kind: 'tema' },
+      { id: 't1b', t: 'T1 · Enteros con signo y complemento a dos', h: 2, kind: 'tema' },
+      { id: 't1c', t: 'T1 · Coma flotante IEEE 754', h: 2, kind: 'tema' },
+      { id: 't1d', t: 'T1 · Códigos: BCD, Gray, ASCII y detección de errores', h: 1.5, kind: 'tema' },
+      { id: 'b2', t: 'Base · Álgebra de Boole: leyes y teoremas', h: 1.5, kind: 'base' },
+      { id: 't2a', t: 'T2 · Funciones lógicas y formas canónicas', h: 2, kind: 'tema' },
+      { id: 't2b', t: 'T2 · Puertas lógicas y familias', h: 1.5, kind: 'tema' },
+      { id: 't3a', t: 'T3 · Simplificación con mapas de Karnaugh', h: 2.5, kind: 'tema' },
+      { id: 't3b', t: 'T3 · Quine-McCluskey e implicantes primos', h: 2, kind: 'tema' },
+      { id: 'l1', t: 'Laboratorio 1 · Puertas y circuitos combinacionales en Logisim', h: 2.5, kind: 'lab' },
+      { id: 't4a', t: 'T4 · Codificadores, decodificadores y multiplexores', h: 2.5, kind: 'tema' },
+      { id: 't4b', t: 'T4 · Sumadores, restadores y comparadores', h: 2.5, kind: 'tema' },
+      { id: 't4c', t: 'T4 · La unidad aritmético-lógica (ALU)', h: 2, kind: 'tema' },
+      { id: 'l2', t: 'Laboratorio 2 · Sumador de 4 bits y ALU', h: 2.5, kind: 'lab' },
+      { id: 't5a', t: 'T5 · Biestables: latches y flip-flops', h: 2.5, kind: 'tema' },
+      { id: 't5b', t: 'T5 · Registros y contadores', h: 2.5, kind: 'tema' },
+      { id: 't5c', t: 'T5 · Máquinas de estados: Moore y Mealy', h: 2.5, kind: 'tema' },
+      { id: 'l3', t: 'Laboratorio 3 · Biestables, registros y contadores', h: 2.5, kind: 'lab' },
+      { id: 't6a', t: 'T6 · Memorias RAM y ROM: tipos y organización', h: 2, kind: 'tema' },
+      { id: 't6b', t: 'T6 · Direccionamiento y expansión de memoria', h: 2, kind: 'tema' },
+      { id: 'l4', t: 'Laboratorio 4 · Máquina de estados completa', h: 2.5, kind: 'lab' },
+      { id: 't7a', t: 'T7 · Ruta de datos y unidad de control', h: 3, kind: 'tema' },
+      { id: 't7b', t: 'T7 · Ciclo de instrucción y juego de instrucciones', h: 2.5, kind: 'tema' },
+      { id: 't8a', t: 'T8 · Tecnologías TTL y CMOS: niveles, retardos y consumo', h: 1.5, kind: 'tema' },
+      { id: 't8b', t: 'T8 · Dispositivos programables: PLD y FPGA', h: 2, kind: 'tema' },
+      { id: 'l5', t: 'Laboratorio 5 · Nand2Tetris: de la puerta NAND a la CPU', h: 2.5, kind: 'lab' },
+      { id: 'c1', t: 'Caso resuelto 1 · Conversiones y aritmética binaria', h: 2, kind: 'repaso' },
+      { id: 'c2', t: 'Caso resuelto 2 · Diseño combinacional y secuencial', h: 2, kind: 'repaso' },
+      { id: 'c3', t: 'Repaso final y simulacro de examen', h: 2.5, kind: 'repaso' }
     ]
   },
 
