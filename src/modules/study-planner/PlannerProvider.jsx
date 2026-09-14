@@ -111,6 +111,7 @@ export function PlannerProvider({ children }) {
 
   // weekHours en null = sin tocar: se siembra del horario de la Agenda.
   const seeded = useMemo(() => weekHoursFromSchedule(data.schedule), [data.schedule])
+  const startTimes = planner.startTimes || DEFAULT_PLANNER.startTimes
   const weekHours = planner.weekHours || seeded || FALLBACK_WEEK_HOURS
   const usingSchedule = !planner.weekHours && Boolean(seeded)
 
@@ -126,8 +127,10 @@ export function PlannerProvider({ children }) {
       today,
       subjects,
       schedule,
-      state: { ...planner, weekHours },
+      state: { ...planner, weekHours, startTimes },
       weekHours,
+      startTimes,
+      weeklySchedule: data.schedule,
       usingSchedule,
       hasSchedule: Boolean(seeded),
 
@@ -138,6 +141,15 @@ export function PlannerProvider({ children }) {
       },
       /** Vuelve a tomar las horas del horario semanal de la Agenda. */
       useScheduleHours: () => patch({ weekHours: null }),
+
+      /** A qué hora empieza el estudio: 0 = entre semana, 5 = fin de semana. */
+      setStartTime: (which, value) => {
+        if (!/^\d{2}:\d{2}$/.test(value)) return
+        const next = [...startTimes]
+        if (which === 'weekday') for (let i = 0; i < 5; i++) next[i] = value
+        else for (let i = 5; i < 7; i++) next[i] = value
+        patch({ startTimes: next })
+      },
       resetHours: () => patch({ weekHours: [...FALLBACK_WEEK_HOURS] }),
 
       setException: (key, v) => {
@@ -166,7 +178,7 @@ export function PlannerProvider({ children }) {
 
       reset: () => patch({ ...DEFAULT_PLANNER })
     }),
-    [today, subjects, schedule, planner, weekHours, usingSchedule, seeded, patch]
+    [today, subjects, schedule, planner, weekHours, startTimes, usingSchedule, seeded, data.schedule, patch]
   )
 
   return <PlannerContext.Provider value={api}>{children}</PlannerContext.Provider>

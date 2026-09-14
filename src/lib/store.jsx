@@ -29,7 +29,12 @@ export const DEFAULT_PLANNER = {
   weekHours: null,
   exceptions: {},
   done: {},
-  hourOverrides: {}
+  hourOverrides: {},
+  // A qué hora empieza el estudio cada día (lun → dom). Entre semana
+  // por la tarde, el fin de semana por la mañana. Solo se usa para
+  // exportar al calendario: el reparto trabaja con horas, no con horas
+  // del día. Si tienes una franja en el horario semanal, manda esa.
+  startTimes: ['18:00', '18:00', '18:00', '18:00', '18:00', '10:00', '10:00']
 }
 
 export function emptyData() {
@@ -108,7 +113,11 @@ function normalizePlanner(raw) {
   for (const [k, v] of Object.entries(asObject(p.hourOverrides))) {
     if (Number.isFinite(Number(v))) hourOverrides[k] = clampHours(v, 0.5, 20, 0.5)
   }
-  return { weekHours: hours, exceptions, done, hourOverrides }
+  const startTimes =
+    Array.isArray(p.startTimes) && p.startTimes.length === 7
+      ? p.startTimes.map((t, i) => (/^\d{2}:\d{2}$/.test(t) ? t : DEFAULT_PLANNER.startTimes[i]))
+      : [...DEFAULT_PLANNER.startTimes]
+  return { weekHours: hours, exceptions, done, hourOverrides, startTimes }
 }
 
 export function clampHours(value, min, max, fallback) {

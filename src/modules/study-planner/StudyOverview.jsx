@@ -10,6 +10,7 @@ import { toISO, parseISO, formatLong } from '../../lib/dates.js'
 import { STUDY_PLANS, UNIT_KINDS } from './studyPlanData.js'
 import { CURRICULUM } from '../../data/curriculum.js'
 import Checkbox from '../../components/Checkbox.jsx'
+import ExportCalendar from './ExportCalendar.jsx'
 
 const MONTHS_SHORT = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
@@ -30,7 +31,8 @@ function Stepper({ value, onChange, step = 0.5, label }) {
 }
 
 export function HoursEditor() {
-  const { weekHours, setDayHours, resetHours, useScheduleHours, usingSchedule, hasSchedule } = usePlanner()
+  const { weekHours, setDayHours, resetHours, useScheduleHours, usingSchedule, hasSchedule, startTimes, setStartTime } =
+    usePlanner()
   const total = weekHours.reduce((a, b) => a + b, 0)
   return (
     <div className="card">
@@ -55,6 +57,29 @@ export function HoursEditor() {
           </div>
         ))}
       </div>
+      <div className="plan-times">
+        <div className="guide-label">A qué hora empiezas</div>
+        <div className="plan-times-row">
+          <label htmlFor="start-weekday">Entre semana</label>
+          <input
+            id="start-weekday"
+            type="time"
+            value={startTimes[0]}
+            onChange={(e) => setStartTime('weekday', e.target.value)}
+          />
+          <label htmlFor="start-weekend">Fines de semana</label>
+          <input
+            id="start-weekend"
+            type="time"
+            value={startTimes[5]}
+            onChange={(e) => setStartTime('weekend', e.target.value)}
+          />
+        </div>
+        <p className="guide-fine">
+          Solo se usa al exportar al calendario. Si ese día tienes una franja en tu horario semanal, manda esa.
+        </p>
+      </div>
+
       <div className="plan-actions">
         {hasSchedule && !usingSchedule && (
           <button type="button" className="btn btn-ghost btn-sm" onClick={useScheduleHours}>
@@ -374,6 +399,7 @@ export default function StudyOverview({ navigate, selectedDay = null }) {
             <p className="plan-sub">Toca un día para darte libre o añadir horas sueltas.</p>
           </div>
           <div className="plan-legend">
+            <ExportCalendar />
             {active.map((s) => (
               <button
                 key={s.id}

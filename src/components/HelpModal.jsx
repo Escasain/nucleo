@@ -33,7 +33,8 @@ export default function HelpModal({ onClose }) {
           </li>
           <li>
             <strong>Calendario</strong>: el planificador reparte el temario pendiente entre los días que puedes
-            estudiar. Toca un día para ver en detalle qué toca, marcarlo como hecho o cambiar sus horas.
+            estudiar. Toca un día para ver en detalle qué toca, marcarlo como hecho o cambiar sus horas. Con «Exportar
+            al calendario» te llevas todas las sesiones a Google Calendar, cada una con sus recursos en la descripción.
           </li>
           <li>
             <strong>Agenda</strong>: lista de entregas, calendario mensual y tu horario semanal fijo (lo que verás cada
