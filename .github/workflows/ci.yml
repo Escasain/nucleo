@@ -1,0 +1,57 @@
+# Lint, build y las pruebas, en cada push y en cada PR.
+#
+# Hasta ahora lo único que comprobaba un PR era que Vercel desplegara,
+# que no dice nada sobre si la app funciona. Esto sí.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Explícito y no «el runner ya trae uno»: sin JDK, la suite de Java
+      # se omite y la CI seguiría verde habiendo dejado de comprobar el
+      # material de la asignatura. Perder cobertura en silencio es justo
+      # lo que este PR existe para evitar.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run build
+
+      # Las que no necesitan navegador. Incluyen la verificación del
+      # material de Java, que compila y ejecuta cada fragmento que la app
+      # publica.
+      - run: npm test
+
+      # Playwright no es dependencia del proyecto a propósito (la app no
+      # se instala con ella), así que aquí se pone solo para esto.
+      - run: npm i --no-save playwright && npx playwright install --with-deps chromium
+
+      - run: npm run test:e2e
+
+      - name: Guardar las capturas si algo falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capturas
+          path: test/.artefactos/
+          if-no-files-found: ignore

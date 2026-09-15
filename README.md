@@ -41,7 +41,15 @@ La build usa rutas relativas (`base: './'` en `vite.config.js`), así que el mis
    npm run dev        # http://localhost:5173
    npm run lint       # ESLint (reglas de hooks + JSX)
    npm run build
+   npm test           # pruebas sin navegador (no instala nada)
    ```
+
+   Las de navegador van aparte porque necesitan Playwright, que **no es
+   una dependencia del proyecto**: la app no arrastra ni una por tener
+   pruebas. Una vez, `npm i -D playwright && npx playwright install
+   chromium`, y luego `npm run test:e2e`. Todo junto —lo mismo que corre
+   la CI en cada PR— es `npm run test:all`. Detalles en
+   [test/README.md](test/README.md).
 
 3. **Deploy**: el proyecto está conectado a Vercel; cada push a `main` construye y publica solo (detecta Vite y sirve `dist/`). Recuerda añadir el dominio de Vercel a los orígenes autorizados de Google ([SETUP.md](SETUP.md), paso 4.3).
 
@@ -90,9 +98,14 @@ src/
     driveSync.js       ← OAuth, lectura/escritura en Drive, Picker
     router.jsx         ← rutas por hash
     dates.js
-  views/               ← Dashboard, Plan, SubjectDetail, Agenda, Study, Progress, Focus, Settings
+  views/               ← Dashboard, Plan, SubjectDetail, Agenda, Study, Progress, Focus,
+                         MockExam, Review, Settings
   components/          ← Sidebar, Modal, Checkbox, Icons, StudyGuide y KeyConcepts (carga bajo demanda),
-                         Understanding, Practice, SearchModal, HelpModal
+                         Understanding, Practice, SubjectMap, SearchModal, HelpModal
+  lib/subjectMap.js    ← niveles del mapa y diagnóstico de temas flojos
+  lib/mockExam.js      ← cómo se monta y se corrige un simulacro
+test/                  ← las pruebas; `npm test` no necesita navegador ni instalar nada
+  data/map/            ← mapa de dependencias entre temas (carga bajo demanda)
   modules/
     study-planner/     ← calendario de estudio
       planner-engine.js    ← buildSchedule() y utilidades de fecha propias
