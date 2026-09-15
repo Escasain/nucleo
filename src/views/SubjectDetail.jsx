@@ -4,6 +4,7 @@ import { subjectById, BLOCKS, STATUS_META, ectsOf } from '../data/curriculum.js'
 import { uniproGrade, neededFinal } from '../lib/stats.js'
 import { todayISO, formatShort, minutesLabel, relativeLabel, isOverdue } from '../lib/dates.js'
 import { pickDriveFiles, isPickerConfigured } from '../lib/driveSync.js'
+import { hasMap } from '../data/map/meta.js'
 import Modal from '../components/Modal.jsx'
 import Checkbox from '../components/Checkbox.jsx'
 import Understanding from '../components/Understanding.jsx'
@@ -12,17 +13,23 @@ const StudyGuide = lazy(() => import('../components/StudyGuide.jsx'))
 const SubjectPlan = lazy(() => import('../modules/study-planner/SubjectPlan.jsx'))
 // Los problemas con sus soluciones pesan: solo al abrir la pestaña.
 const Practice = lazy(() => import('../components/Practice.jsx'))
+const SubjectMap = lazy(() => import('../components/SubjectMap.jsx'))
 import { IconArrowLeft, IconPlus, IconTrash, IconDrive, IconLink, IconCards, IconExternal } from '../components/Icons.jsx'
 
-const TABS = [
-  { id: 'guia', label: 'Guía de estudio' },
-  { id: 'calendario', label: 'Calendario' },
-  { id: 'practica', label: 'Práctica' },
-  { id: 'clases', label: 'Clases y sesiones' },
-  { id: 'recursos', label: 'Recursos' },
-  { id: 'evaluaciones', label: 'Evaluaciones' },
-  { id: 'notas', label: 'Notas y dudas' }
-]
+// El mapa solo se ofrece donde hay uno: una pestaña vacía en las otras
+// 28 asignaturas sería una promesa que la app no cumple.
+function tabsFor(subjectId) {
+  return [
+    { id: 'guia', label: 'Guía de estudio' },
+    { id: 'calendario', label: 'Calendario' },
+    ...(hasMap(subjectId) ? [{ id: 'mapa', label: 'Mapa' }] : []),
+    { id: 'practica', label: 'Práctica' },
+    { id: 'clases', label: 'Clases y sesiones' },
+    { id: 'recursos', label: 'Recursos' },
+    { id: 'evaluaciones', label: 'Evaluaciones' },
+    { id: 'notas', label: 'Notas y dudas' }
+  ]
+}
 
 function resourceKindLabel(r) {
   if (r.driveId) return 'Google Drive'
@@ -39,7 +46,8 @@ export default function SubjectDetail({ id, tab: routeTab, navigate }) {
   // La pestaña vive en la ruta (#/asignatura/:id/:pestaña) para que un
   // enlace desde Inicio o desde la búsqueda caiga donde toca y se pueda
   // compartir. Una pestaña desconocida cae en la primera.
-  const tab = TABS.some((t) => t.id === routeTab) ? routeTab : 'guia'
+  const tabs = tabsFor(id)
+  const tab = tabs.some((t) => t.id === routeTab) ? routeTab : 'guia'
   const setTab = (t) => navigate(`/asignatura/${id}/${t}`)
   const [sessionModal, setSessionModal] = useState(false)
   const [taskModal, setTaskModal] = useState(false)
@@ -153,7 +161,7 @@ export default function SubjectDetail({ id, tab: routeTab, navigate }) {
       <GradeCalc id={id} state={state} dispatch={dispatch} progress={data.topicProgress?.[id]} />
 
       <div className="tabs" role="tablist" aria-label="Secciones de la asignatura">
-        {TABS.map((t) => (
+        {tabs.map((t) => (
           <button
             key={t.id}
             role="tab"
@@ -175,6 +183,12 @@ export default function SubjectDetail({ id, tab: routeTab, navigate }) {
       {tab === 'calendario' && (
         <Suspense fallback={<div className="empty">Cargando el calendario…</div>}>
           <SubjectPlan subjectId={id} navigate={navigate} />
+        </Suspense>
+      )}
+
+      {tab === 'mapa' && (
+        <Suspense fallback={<div className="card empty">Cargando el mapa…</div>}>
+          <SubjectMap subjectId={id} navigate={navigate} />
         </Suspense>
       )}
 
