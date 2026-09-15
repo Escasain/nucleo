@@ -60,6 +60,13 @@ export function emptyData() {
     topicProgress: {},
     // Intentos de los problemas de práctica, por «asignatura:problema».
     practice: {},
+    // Simulacros de examen ya corregidos, uno por entrada. El resultado
+    // problema a problema no se guarda aquí: al corregir cada uno se
+    // registra como un intento más en `practice`, que es donde vive la
+    // pregunta «¿me sale este problema?». Aquí queda lo que la práctica
+    // no sabe responder: qué nota sacaste, en cuánto tiempo y si vas a
+    // mejor de un simulacro al siguiente.
+    mocks: [],
     settings: { ...DEFAULT_SETTINGS },
     planner: { ...DEFAULT_PLANNER }
   }
@@ -99,6 +106,16 @@ export function normalize(raw) {
       ])
     ),
     practice: normalizePractice(raw.practice),
+    mocks: asArray(raw.mocks)
+      .filter((m) => m && m.id && m.subjectId && Number.isFinite(Number(m.nota)))
+      .map((m) => ({
+        ...m,
+        nota: Number(m.nota),
+        total: Math.max(0, Math.floor(Number(m.total)) || 0),
+        aciertos: Math.max(0, Math.floor(Number(m.aciertos)) || 0),
+        minutes: Math.max(0, Math.floor(Number(m.minutes)) || 0),
+        temas: asArray(m.temas).filter((t) => t && typeof t.g === 'string')
+      })),
     settings: { ...DEFAULT_SETTINGS, ...asObject(raw.settings) },
     planner: normalizePlanner(raw.planner)
   }
@@ -339,6 +356,14 @@ function reducer(data, action) {
         }
       })
     }
+
+    case 'saveMock':
+      return stamp({
+        ...data,
+        mocks: [...data.mocks, { id: uid(), date: new Date().toISOString(), ...action.mock }]
+      })
+    case 'deleteMock':
+      return stamp({ ...data, mocks: data.mocks.filter((m) => m.id !== action.id) })
 
     case 'setPlanner':
       return stamp({ ...data, planner: { ...data.planner, ...action.patch } })

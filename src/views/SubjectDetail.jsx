@@ -194,7 +194,7 @@ export default function SubjectDetail({ id, tab: routeTab, navigate }) {
 
       {tab === 'practica' && (
         <Suspense fallback={<div className="card empty">Cargando los problemas…</div>}>
-          <Practice subjectId={id} />
+          <Practice subjectId={id} navigate={navigate} />
         </Suspense>
       )}
 

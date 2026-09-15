@@ -13,7 +13,7 @@
 import React, { useMemo, useState } from 'react'
 import { useStore } from '../lib/store.jsx'
 import { practiceFor, groupProblems, practiceStats, attemptKey, LEVELS } from '../data/practice/index.js'
-import { IconCheck, IconX } from './Icons.jsx'
+import { IconCheck, IconX, IconClock } from './Icons.jsx'
 
 const FILTERS = [
   { id: 'todos', label: 'Todos' },
@@ -21,7 +21,7 @@ const FILTERS = [
   { id: 'fallados', label: 'Fallados' }
 ]
 
-export default function Practice({ subjectId }) {
+export default function Practice({ subjectId, navigate }) {
   const { data, dispatch, toast } = useStore()
   const problems = practiceFor(subjectId)
   const [filter, setFilter] = useState('todos')
@@ -123,6 +123,16 @@ export default function Practice({ subjectId }) {
             {stats.weak.done}. Ahí es donde renta el tiempo, no en lo que ya te sale.
           </p>
         )}
+
+        <p className="mock-cta">
+          <span>
+            Practicar y examinarse no miden lo mismo: aquí eliges el problema y tienes la pista a un clic. Cuando
+            quieras saber si aprobarías, hazte un simulacro cronometrado.
+          </span>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate(`/simulacro/${subjectId}`)}>
+            <IconClock style={{ width: 14, height: 14 }} aria-hidden="true" /> Simulacro
+          </button>
+        </p>
 
         <div className="tabs" role="tablist" style={{ marginTop: 14 }}>
           {FILTERS.map((f) => (
