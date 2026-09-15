@@ -6,10 +6,12 @@
 // que las dos listas no se separen.
 import { ALGEBRA_MAP } from './algebra.js'
 import { TEC_COMP_MAP } from './tec-comp.js'
+import { FUND_PROG_MAP } from './fund-prog.js'
 
 export const MAPS = {
   algebra: ALGEBRA_MAP,
-  'tec-comp': TEC_COMP_MAP
+  'tec-comp': TEC_COMP_MAP,
+  'fund-prog': FUND_PROG_MAP
 }
 
 export function mapFor(subjectId) {

@@ -9,10 +9,12 @@
 // basta con crear su fichero y ponerlo aquí.
 import { ALGEBRA_PRACTICE } from './algebra.js'
 import { TEC_COMP_PRACTICE } from './tec-comp.js'
+import { FUND_PROG_PRACTICE } from './fund-prog.js'
 
 export const PRACTICE = {
   algebra: ALGEBRA_PRACTICE,
-  'tec-comp': TEC_COMP_PRACTICE
+  'tec-comp': TEC_COMP_PRACTICE,
+  'fund-prog': FUND_PROG_PRACTICE
 }
 
 export const LEVELS = {

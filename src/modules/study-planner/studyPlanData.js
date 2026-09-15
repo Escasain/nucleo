@@ -141,7 +141,64 @@ export const STUDY_PLANS = {
   // Sin temario todavía: aparecen en «Más adelante» hasta que lo
   // cargues. En cuanto tengan unidades entran en el calendario.
   // ---------------------------------------------------------------
-  'fund-prog': { short: 'FP', color: 'var(--plan-3)', examLabel: 'Arranca en noviembre', units: [] },
+  // ---------------------------------------------------------------
+  // Fundamentos de Programación · PROVISIONAL
+  //
+  // Los nueve temas salen del temario que ya documenta su guía de
+  // estudio en data/guide/year1.js, no de la guía docente de UNIPRO,
+  // que no es pública. Las horas son una estimación por peso, calibrada
+  // para unas 67 h: son 6 ECTS como Álgebra y como TC.
+  //
+  // Va en el bloque de noviembre, el mismo que TC. Son dos asignaturas
+  // de 6 ECTS en seis semanas y el planificador lo va a enseñar sin
+  // adornos en cuanto la marques como cursando: eso no es un defecto
+  // del reparto, es el curso que tienes.
+  //
+  // La asignatura se imparte habitualmente en Java; los problemas y los
+  // conceptos lo asumen. Cuando tengas la guía oficial, sustituye
+  // títulos y horas aquí: no hay que tocar ningún componente.
+  // ---------------------------------------------------------------
+  'fund-prog': {
+    short: 'FP',
+    color: 'var(--plan-3)',
+    start: '2026-11-09',
+    examHint: '2026-12-23',
+    examLabel: 'Examen por confirmar',
+    provisional: true,
+    units: [
+      { id: 'b1', t: 'Base · El entorno: JDK, IDE y tu primer programa', h: 1.5, kind: 'base' },
+      { id: 't1a', t: 'T1 · Algoritmos, lenguajes, compilación e interpretación', h: 1.5, kind: 'tema' },
+      { id: 't1b', t: 'T1 · Estructura de un programa Java y convenciones', h: 1.5, kind: 'tema' },
+      { id: 't2a', t: 'T2 · Tipos primitivos, variables y constantes', h: 2, kind: 'tema' },
+      { id: 't2b', t: 'T2 · Operadores, precedencia y conversión de tipos', h: 2, kind: 'tema' },
+      { id: 't2c', t: 'T2 · Entrada y salida por consola', h: 1.5, kind: 'tema' },
+      { id: 'l1', t: 'Laboratorio 1 · Calculadora por consola', h: 2, kind: 'lab' },
+      { id: 't3a', t: 'T3 · Condicionales: if, else if y switch', h: 2, kind: 'tema' },
+      { id: 't3b', t: 'T3 · Bucles: while, do-while y for', h: 2.5, kind: 'tema' },
+      { id: 't3c', t: 'T3 · Bucles anidados, break y continue', h: 2, kind: 'tema' },
+      { id: 'l2', t: 'Laboratorio 2 · Menú con validación de entrada', h: 2.5, kind: 'lab' },
+      { id: 't4a', t: 'T4 · Métodos: parámetros, retorno y ámbito', h: 2.5, kind: 'tema' },
+      { id: 't4b', t: 'T4 · Paso por valor y sobrecarga', h: 2, kind: 'tema' },
+      { id: 't4c', t: 'T4 · Recursividad básica', h: 2.5, kind: 'tema' },
+      { id: 'l3', t: 'Laboratorio 3 · Biblioteca de métodos y pruebas', h: 2.5, kind: 'lab' },
+      { id: 't5a', t: 'T5 · Vectores: declaración, recorrido y búsqueda', h: 2.5, kind: 'tema' },
+      { id: 't5b', t: 'T5 · Ordenación y algoritmos clásicos sobre vectores', h: 2.5, kind: 'tema' },
+      { id: 't5c', t: 'T5 · Matrices y arrays bidimensionales', h: 2, kind: 'tema' },
+      { id: 't6', t: 'T6 · Cadenas: String, inmutabilidad y métodos', h: 2.5, kind: 'tema' },
+      { id: 'l4', t: 'Laboratorio 4 · Procesar texto con vectores y cadenas', h: 2.5, kind: 'lab' },
+      { id: 't7a', t: 'T7 · Clases y objetos: atributos y métodos', h: 2.5, kind: 'tema' },
+      { id: 't7b', t: 'T7 · Constructores, this y encapsulación', h: 2.5, kind: 'tema' },
+      { id: 't7c', t: 'T7 · Arrays de objetos y colaboración entre clases', h: 2.5, kind: 'tema' },
+      { id: 'l5', t: 'Laboratorio 5 · Modelar un dominio pequeño con clases', h: 2.5, kind: 'lab' },
+      { id: 't8a', t: 'T8 · Errores y excepciones: try, catch, finally', h: 2, kind: 'tema' },
+      { id: 't8b', t: 'T8 · Ficheros de texto: leer y escribir', h: 2, kind: 'tema' },
+      { id: 't9', t: 'T9 · Depuración, pruebas y estilo', h: 2, kind: 'tema' },
+      { id: 'l6', t: 'Laboratorio 6 · Programa completo con ficheros', h: 2.5, kind: 'lab' },
+      { id: 'c1', t: 'Caso resuelto 1 · Control de flujo y métodos', h: 2, kind: 'repaso' },
+      { id: 'c2', t: 'Caso resuelto 2 · Vectores, cadenas y objetos', h: 2, kind: 'repaso' },
+      { id: 'c3', t: 'Repaso final y simulacro de examen', h: 2.5, kind: 'repaso' }
+    ]
+  },
   ipo: { short: 'IPO', color: 'var(--plan-4)', examLabel: 'Arranca en marzo', units: [] },
   'estructura-datos': { short: 'EDA', color: 'var(--plan-5)', examLabel: 'Arranca en mayo', units: [] }
 }
