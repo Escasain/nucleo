@@ -19,7 +19,7 @@ import { useStore } from '../lib/store.jsx'
 import { usePlanner } from '../modules/study-planner/PlannerProvider.jsx'
 import { subjectById } from '../data/curriculum.js'
 import { daysBetween } from '../modules/study-planner/planner-engine.js'
-import { formatShort } from '../lib/dates.js'
+import { formatShort, parseISO } from '../lib/dates.js'
 import { mapFor } from '../data/map/index.js'
 import { mapStatus, diagnose } from '../lib/subjectMap.js'
 import { practiceFor, practiceStats, attemptKey, groupProblems } from '../data/practice/index.js'
@@ -68,13 +68,16 @@ export default function Review({ subjectId, navigate }) {
   const dudas = mias.filter((n) => n.type === 'duda' && !n.resolved)
   const explicaciones = mias.filter((n) => n.type === 'explicacion')
 
-  // Trampas: las de tus temas flojos. Si no hay ninguno señalado, todas —
-  // antes de un examen merecen una pasada de todas formas.
+  // Trampas: las de tus temas flojos. Cuando no hay ninguna que sacar se
+  // enseñan todas — antes de un examen merecen una pasada de todas formas
+  // — pero diciendo POR QUÉ salen todas. Hay dos motivos distintos y
+  // confundirlos contradecía la sección de arriba: no es lo mismo «no
+  // tienes temas flojos» que «tu tema flojo no tiene trampas escritas».
   const trampas = useMemo(() => {
     const todas = concepts?.pitfalls || []
-    if (temasFlojos.size === 0) return { lista: todas, filtradas: false }
+    if (temasFlojos.size === 0) return { lista: todas, motivo: 'sin-flojos' }
     const propias = todas.filter((p) => temasFlojos.has(p.g))
-    return propias.length > 0 ? { lista: propias, filtradas: true } : { lista: todas, filtradas: false }
+    return propias.length > 0 ? { lista: propias, motivo: 'filtradas' } : { lista: todas, motivo: 'sin-trampas' }
   }, [concepts, temasFlojos])
 
   const conceptosFlojos = useMemo(
@@ -101,8 +104,15 @@ export default function Review({ subjectId, navigate }) {
     )
   }
 
+  // De dónde sale la fecha importa, y en papel más que en pantalla: una
+  // hoja impresa que afirma «Examen el 23 dic» se planifica alrededor de
+  // ella. Solo es un hecho si la apuntaste tú en la agenda; si sale del
+  // plan es una estimación y hay que decirlo — el temario de TC dice
+  // literalmente «Examen por confirmar», y el de AMD da un rango de tres
+  // días, no una fecha.
   const examen = plannerSubject?.exam || null
-  const faltan = examen ? daysBetween(today, new Date(`${examen}T00:00:00`)) : null
+  const confirmado = Boolean(plannerSubject?.examFromAgenda)
+  const faltan = examen ? daysBetween(today, parseISO(examen)) : null
   const vacia =
     porRecuperar.length === 0 && dudas.length === 0 && explicaciones.length === 0 && flojos.length === 0
 
@@ -118,13 +128,19 @@ export default function Review({ subjectId, navigate }) {
             <div className="guide-label">Ficha de repaso</div>
             <h1 style={{ fontSize: 24, marginBottom: 4 }}>{subject.name}</h1>
             <p className="guide-fine" style={{ marginTop: 0 }}>
-              {examen ? (
+              {!examen ? (
+                'Sin fecha de examen registrada'
+              ) : confirmado ? (
                 <>
                   Examen el {formatShort(examen)}
                   {faltan != null && faltan >= 0 ? ` · faltan ${faltan} días` : ''}
                 </>
               ) : (
-                'Sin fecha de examen registrada'
+                <>
+                  {plannerSubject.examLabel || `Examen previsto para el ${formatShort(examen)}`}
+                  {faltan != null && faltan >= 0 ? ` · faltan unos ${faltan} días` : ''} · fecha del plan, sin
+                  confirmar en tu agenda
+                </>
               )}
               {ultimoSimulacro ? (
                 <>
@@ -247,9 +263,11 @@ export default function Review({ subjectId, navigate }) {
         <div className="card">
           <h3 style={{ marginBottom: 2 }}>Trampas</h3>
           <p className="guide-fine" style={{ marginTop: 0 }}>
-            {trampas.filtradas
+            {trampas.motivo === 'filtradas'
               ? 'Las de los temas que se te están resistiendo.'
-              : 'Todas las de la asignatura: sin temas flojos señalados, antes de un examen merecen una pasada entera.'}
+              : trampas.motivo === 'sin-trampas'
+                ? 'No hay ninguna trampa escrita de los temas que se te resisten, así que van todas las de la asignatura: antes de un examen merecen una pasada entera.'
+                : 'Todas las de la asignatura: sin temas flojos señalados, antes de un examen merecen una pasada entera.'}
           </p>
           <ul className="review-traps">
             {trampas.lista.map((t) => (
