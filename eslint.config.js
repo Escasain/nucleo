@@ -35,5 +35,25 @@ export default [
     // El service worker corre fuera de la app, con su propio ámbito.
     files: ['public/sw.js'],
     languageOptions: { globals: { ...globals.serviceworker } }
+  },
+  {
+    // Las pruebas corren en Node, no en el navegador. Sin esto, el lint
+    // ni las miraba: son .mjs y el bloque de arriba solo coge .js/.jsx.
+    files: ['test/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      // Node y navegador a la vez: las de Playwright corren en Node pero
+      // los callbacks de page.evaluate se ejecutan dentro de la página.
+      globals: { ...globals.node, ...globals.browser }
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      // Un catch vacío es deliberado en varios sitios: «inténtalo y si
+      // no, sigue» (esperar a que levante el servidor, leer un fichero
+      // que puede no estar).
+      'no-empty': ['error', { allowEmptyCatch: true }]
+    }
   }
 ]

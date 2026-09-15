@@ -4,3 +4,6 @@ dist
 *.local
 .env
 .env.*
+
+# Capturas y ficheros temporales de las pruebas de navegador
+test/.artefactos/
