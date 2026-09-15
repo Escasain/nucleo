@@ -89,6 +89,14 @@ export function mapStatus(nodes, doneUnits, byTopic) {
     // 70 %) a propósito: allí solo se señala un tema flojo, aquí se
     // manda a alguien a rehacer trabajo anterior. Eso hay que acertarlo.
     const weak = tried >= 2 && rate < 0.5
+    // Y lo simétrico, que es lo que de verdad autoriza a decir «esto lo
+    // tienes»: haber terminado el temario es haberlo leído, no haberlo
+    // comprobado. Donde hay problemas hacen falta al menos dos intentos
+    // que salgan más de la mitad de las veces; donde no los hay (un tema
+    // sin `g`) el temario es toda la evidencia disponible y con eso basta.
+    // Entre medias — cero intentos, o uno solo — no es flojo pero tampoco
+    // está comprobado, y el mapa no puede llamarlo firme.
+    const proven = node.g ? tried >= 2 && rate >= 0.5 : complete
     return {
       node,
       level: levels.get(node.id) || 0,
@@ -101,7 +109,8 @@ export function mapStatus(nodes, doneUnits, byTopic) {
       okFirst,
       rate,
       weak,
-      solid: complete && !weak
+      proven,
+      solid: complete && proven
     }
   })
   // Segunda pasada: los cimientos de cada uno, ya con el estado de todos.
@@ -118,7 +127,10 @@ export function mapStatus(nodes, doneUnits, byTopic) {
  * lo que más cambia una tarde de estudio:
  *
  *   weak     — un tema que se te está resistiendo, y qué cimiento suyo
- *              no está firme. Esto es el consejo de verdad: volver
+ *              no está firme — que incluye los que tienes leídos pero
+ *              sin comprobar con un solo problema: decirle a alguien
+ *              «los cimientos aguantan, insiste aquí» sin haberlo
+ *              comprobado es justo el autoengaño que esto deshace. Esto es el consejo de verdad: volver
  *              atrás en lugar de insistir donde duele. Van de abajo
  *              arriba, no por lo mal que vaya cada uno: si flojean un
  *              tema y su cimiento, arreglar el de abajo suele arreglar

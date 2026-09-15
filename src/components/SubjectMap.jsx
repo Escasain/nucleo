@@ -30,14 +30,12 @@ function stateClass(r) {
   return 'is-todo'
 }
 
-// Haber terminado el temario de un tema y no haber tocado un problema
-// suyo no es tenerlo sólido, y decirlo sería justo el autoengaño que
-// esta pantalla existe para deshacer. Va antes que `solid` a propósito:
-// al revés la rama no se alcanzaba nunca.
 function stateLabel(r) {
   if (r.weak) return 'se te está resistiendo'
-  if (r.complete && r.tried === 0) return 'temario hecho, sin comprobar con problemas'
   if (r.solid) return 'sólido'
+  // Temario terminado pero sin problemas que lo respalden: ni sólido ni
+  // flojo, y decir cuál de las dos cosas es lo que importa.
+  if (r.complete) return 'temario hecho, sin comprobar con problemas'
   if (r.started) return 'empezado'
   return 'sin empezar'
 }
@@ -148,8 +146,8 @@ export default function SubjectMap({ subjectId, navigate }) {
         )}
 
         <div className="smap-legend">
-          <span className="is-solid">temario hecho</span>
-          <span className="is-open">empezado</span>
+          <span className="is-solid">sólido</span>
+          <span className="is-open">en marcha</span>
           <span className="is-weak">se resiste</span>
           <span className="is-todo">sin empezar</span>
         </div>
