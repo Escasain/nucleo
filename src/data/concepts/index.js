@@ -11,10 +11,12 @@
 // aquí: no hay que tocar ningún componente.
 import { ALGEBRA } from './algebra.js'
 import { TEC_COMP } from './tec-comp.js'
+import { FUND_PROG } from './fund-prog.js'
 
 export const CONCEPTS = {
   algebra: ALGEBRA,
-  'tec-comp': TEC_COMP
+  'tec-comp': TEC_COMP,
+  'fund-prog': FUND_PROG
 }
 
 export function conceptsFor(subjectId) {
