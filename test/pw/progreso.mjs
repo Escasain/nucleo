@@ -1,5 +1,5 @@
 // Sesión de estudio enfocada + vista Progreso, en el navegador.
-import { lanzar, vigilarConsola } from './navegador.mjs'
+import { lanzar, vigilarConsola } from './_navegador.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []
 const check = (n, ok, x = '') => { out.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' :: ' + x : ''}`); if (!ok) process.exitCode = 1 }

@@ -1,4 +1,4 @@
-import { lanzar, vigilarConsola } from './navegador.mjs'
+import { lanzar, vigilarConsola } from './_navegador.mjs'
 import fs from 'node:fs/promises'
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []

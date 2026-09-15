@@ -102,7 +102,10 @@ if (propio) {
 mkdirSync(join(aqui, '.artefactos'), { recursive: true })
 
 const dir = join(aqui, 'pw')
-const ficheros = readdirSync(dir).filter((f) => f.endsWith('.mjs')).sort()
+// Los ficheros que empiezan por _ son ayudantes compartidos, no suites.
+// Sin esta regla el lanzador ejecutaba _navegador.mjs como si lo fuera:
+// no imprime resumen, así que lo daba por muerto a mitad.
+const ficheros = readdirSync(dir).filter((f) => f.endsWith('.mjs') && !f.startsWith('_')).sort()
 const filas = correrSuites(ficheros, { cwd: dir, env: { ...process.env, BASE }, etiqueta: 'pw/' })
 const bien = informe(filas)
 

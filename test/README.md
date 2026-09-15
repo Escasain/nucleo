@@ -22,7 +22,10 @@ con Node a secas: `npm test` no instala nada.
 | `mock` | el simulacro: cómo se monta el examen y cómo se lee el resultado |
 | `java` | **compila y ejecuta** cada fragmento de Java que la app publica |
 
-**`pw/*.mjs`** — el recorrido real en un navegador, con Playwright.
+**`pw/*.mjs`** — el recorrido real en un navegador, con Playwright. Los
+que empiezan por `_` son ayudantes compartidos, no suites: el lanzador
+los salta (`_navegador.mjs` abre el navegador y vigila la consola con un
+único criterio para las diecisiete).
 Comprueban lo que la lógica pura no puede: que las pantallas se pinten,
 que los datos lleguen a `localStorage`, que en el móvil no desborde, que
 el teclado funcione y que la consola quede limpia.

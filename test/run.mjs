@@ -79,6 +79,6 @@ export function informe(filas) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const ficheros = readdirSync(aqui).filter((f) => f.endsWith('.test.mjs')).sort()
+  const ficheros = readdirSync(aqui).filter((f) => f.endsWith('.test.mjs') && !f.startsWith('_')).sort()
   process.exit(informe(correrSuites(ficheros)) ? 0 : 1)
 }

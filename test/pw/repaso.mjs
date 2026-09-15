@@ -1,5 +1,5 @@
 // La ficha de repaso: que se llene con TUS datos y solo con ellos.
-import { lanzar, vigilarConsola } from './navegador.mjs'
+import { lanzar, vigilarConsola } from './_navegador.mjs'
 const ARTEFACTOS = new URL('../.artefactos/', import.meta.url).pathname
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []
