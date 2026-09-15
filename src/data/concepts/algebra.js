@@ -303,61 +303,73 @@ export const ALGEBRA = {
   pitfalls: [
     {
       t: 'Probar un ∀ con ejemplos',
+      g: 'Lógica',
       wrong: 'Comprobar que se cumple para n = 1, 2, 3 y darlo por demostrado.',
       right: 'Los ejemplos no prueban un universal, solo lo hacen plausible. Para probarlo hace falta inducción o un argumento general; para tumbarlo, en cambio, basta UN contraejemplo.'
     },
     {
       t: 'Demostrar el recíproco sin darse cuenta',
+      g: 'Lógica',
       wrong: 'Te piden p → q y acabas argumentando q → p.',
       right: 'Solo el contrarrecíproco (¬q → ¬p) es equivalente. Antes de empezar, escribe explícitamente qué supones y qué concluyes.'
     },
     {
       t: 'Creer que la inducción es circular',
+      g: 'Inducción',
       wrong: '«Estoy suponiendo lo que quiero demostrar».',
       right: 'Supones un caso concreto (n) para probar el siguiente (n+1). Lo que demuestras es el enlace entre fichas, no la afirmación global — esa la da el efecto dominó junto con el caso base.'
     },
     {
       t: 'Saltarse el caso base',
+      g: 'Inducción',
       wrong: 'Hacer un paso inductivo impecable y no comprobar n = 1.',
       right: 'Sin caso base no hay nada. Se puede «demostrar» inductivamente que todos los números son iguales si nadie tira la primera ficha.'
     },
     {
       t: 'Operar con matrices como con números',
+      g: 'Matrices',
       wrong: 'AB = BA, o (A+B)² = A² + 2AB + B².',
       right: 'El producto de matrices no conmuta, así que (A+B)² = A² + AB + BA + B². Tampoco existe «dividir»: hay inversa, y solo si det ≠ 0.'
     },
     {
       t: 'Dividir los dos lados de una congruencia',
+      g: 'Aritmética',
       wrong: 'De 6 ≡ 2 (mod 4) deducir 3 ≡ 1 (mod 4).',
       right: 'Es falso. Dividir solo vale si el factor es primo con el módulo; si no, hay que dividir también el módulo por el mcd.'
     },
     {
       t: 'Dar por hecho que el inverso modular existe',
+      g: 'Aritmética',
       wrong: 'Buscar a⁻¹ mod m sin comprobar nada.',
       right: 'Solo existe si mcd(a, m) = 1. Comprobarlo primero con Euclides ahorra páginas de cuentas que no llevan a ningún sitio.'
     },
     {
       t: 'Mezclar ∈ y ⊆',
+      g: 'Conjuntos',
       wrong: 'Escribir {1} ∈ {1, 2} o 1 ⊆ {1, 2}.',
       right: '1 ∈ {1,2} y {1} ⊆ {1,2}. Un elemento pertenece; un conjunto se incluye. Con conjuntos de conjuntos hay que ir despacio.'
     },
     {
       t: 'Confundir antisimétrica con no simétrica',
+      g: 'Relaciones',
       wrong: 'Descartar una relación de orden porque «hay pares en los dos sentidos».',
       right: 'Antisimétrica permite a R b y b R a: exige que entonces a = b. La igualdad es a la vez simétrica y antisimétrica.'
     },
     {
       t: 'Euleriano y hamiltoniano',
+      g: 'Grafos',
       wrong: 'Aplicar el criterio de los grados pares para decidir si hay ciclo hamiltoniano.',
       right: 'Ese criterio es solo para el euleriano (aristas). Para el hamiltoniano (vértices) no hay criterio simple: es NP-completo.'
     },
     {
       t: 'Contar mal las aristas de un árbol',
+      g: 'Grafos',
       wrong: 'Suponer que un árbol con n vértices tiene n aristas.',
       right: 'Tiene n−1. Comprobarlo es la forma más rápida de detectar que te has dejado un ciclo o has desconectado algo.'
     },
     {
       t: 'Clasificar un sistema por el número de ecuaciones',
+      g: 'Sistemas',
       wrong: '«Tres ecuaciones y tres incógnitas, luego solución única».',
       right: 'Lo que decide es el rango, no el número de filas. Tres ecuaciones donde una es suma de las otras dos aportan rango 2 y dejan infinitas soluciones.'
     }

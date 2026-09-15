@@ -452,6 +452,9 @@ export default function MockExam({ subjectId, navigate }) {
             <button className="btn btn-ghost" onClick={() => navigate(`/asignatura/${subjectId}/mapa`)}>
               Ver el mapa
             </button>
+            <button className="btn btn-ghost" onClick={() => navigate(`/repaso/${subjectId}`)}>
+              Ficha de repaso
+            </button>
             <button
               className="btn btn-secondary"
               onClick={() => {

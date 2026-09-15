@@ -1587,3 +1587,62 @@ a.guide-res-title:hover { color: var(--pine); text-decoration: underline; }
 .mock-nota.is-fail { color: var(--st-suspensa); }
 .mock-history .title { font-size: 14px; font-weight: 600; color: var(--ink); }
 .mock-history .meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+
+/* ============================================================
+   Ficha de repaso
+   ------------------------------------------------------------
+   La hoja impresa es el producto: todo lo de aquí está pensado
+   para leerse en papel tanto como en pantalla.
+   ============================================================ */
+.review-weak { margin: 8px 0 0; padding-left: 20px; }
+.review-weak li { margin-top: 10px; font-size: 14px; }
+.review-weak li p { margin: 4px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); }
+
+.review-group { margin-top: 16px; }
+.review-probs { margin: 6px 0 0; padding-left: 20px; }
+.review-probs li { margin-top: 12px; break-inside: avoid; }
+.review-probs .prob-q { font-size: 14px; }
+.review-key { margin: 4px 0 0; font-size: 13px; color: var(--pine); }
+
+.review-notes { list-style: none; margin: 8px 0 0; padding: 0; }
+.review-notes li {
+  padding: 11px 0 11px 13px;
+  border-left: 2.5px solid var(--linen-3);
+  margin-top: 10px;
+  break-inside: avoid;
+}
+.review-notes li p { margin: 3px 0 0; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+
+.review-traps { list-style: none; margin: 8px 0 0; padding: 0; }
+.review-traps li { padding: 13px 0; border-top: 1px solid var(--linen-2); break-inside: avoid; }
+.review-traps li:first-child { border-top: none; }
+.review-traps li p { margin: 4px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); }
+.review-traps .is-wrong { color: var(--st-suspensa); }
+
+.review-terms { list-style: none; margin: 8px 0 0; padding: 0; }
+.review-terms li {
+  padding: 8px 0;
+  border-top: 1px solid var(--linen-2);
+  font-size: 13.5px;
+  line-height: 1.6;
+  break-inside: avoid;
+}
+.review-terms li:first-child { border-top: none; }
+
+@media print {
+  /* En papel las tarjetas son secciones, no cajas: sin marco y sin
+     el aire que sobra cuando el espacio se paga en hojas. */
+  .review .card { border: none; padding: 0; margin: 0 0 18px; }
+  .review h1 { font-size: 18px; }
+  .review h3 { font-size: 14px; border-bottom: 1px solid #ccc; padding-bottom: 3px; }
+  .review-traps .is-wrong { color: #000; font-style: italic; }
+  .review-key { color: #000; }
+  /* Los grises de pantalla se pierden en papel: el texto secundario
+     sigue siendo secundario, pero legible impreso. */
+  .review .guide-fine,
+  .review .guide-summary,
+  .review-weak li p,
+  .review-traps li p,
+  .review-terms li { color: #333; }
+  .review .guide-label { color: #555; }
+}

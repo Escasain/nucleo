@@ -17,6 +17,9 @@ import Focus from './views/Focus.jsx'
 // El simulacro carga los problemas de la asignatura: fuera del bundle
 // principal, igual que la pestaña de práctica.
 const MockExam = lazy(() => import('./views/MockExam.jsx'))
+// La ficha de repaso junta problemas, conceptos y el mapa: fuera del
+// bundle principal, que solo se abre unos pocos días al cuatrimestre.
+const Review = lazy(() => import('./views/Review.jsx'))
 import Settings from './views/Settings.jsx'
 
 const GO_KEYS = { i: '/', p: '/plan', c: '/calendario', a: '/agenda', e: '/estudio', r: '/progreso', j: '/ajustes' }
@@ -107,6 +110,12 @@ function Shell() {
     view = (
       <Suspense fallback={<div className="card empty">Montando el examen…</div>}>
         <MockExam key={route.subjectId} subjectId={route.subjectId} navigate={navigate} />
+      </Suspense>
+    )
+  else if (route.name === 'repaso')
+    view = (
+      <Suspense fallback={<div className="card empty">Montando la ficha…</div>}>
+        <Review key={route.subjectId} subjectId={route.subjectId} navigate={navigate} />
       </Suspense>
     )
   else if (route.name === 'ajustes') view = <Settings onHelp={() => setHelp(true)} />

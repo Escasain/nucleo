@@ -292,61 +292,73 @@ export const TEC_COMP = {
   pitfalls: [
     {
       t: 'El rango del complemento a dos',
+      g: 'Numeración',
       wrong: 'Con 8 bits, de −127 a +127.',
       right: 'De −128 a +127. Hay un negativo de más porque el cero tiene una sola representación, no dos como en signo-magnitud.'
     },
     {
       t: 'Confundir acarreo con desbordamiento',
+      g: 'Numeración',
       wrong: 'Ver un acarreo final y declarar desbordamiento.',
       right: 'En aritmética sin signo lo relevante es el acarreo; con signo, el desbordamiento, que se detecta cuando el acarreo que entra al bit de signo y el que sale difieren. Pueden darse por separado.'
     },
     {
       t: 'Comparar flotantes con igualdad',
+      g: 'Numeración',
       wrong: 'if (0.1 + 0.2 == 0.3)',
       right: 'Es falso en cualquier lenguaje que use IEEE 754, porque 0,1 en binario es periódico. Se compara con una tolerancia.'
     },
     {
       t: 'Olvidar que el mapa de Karnaugh se cierra',
+      g: 'Boole',
       wrong: 'No agrupar las cuatro esquinas, o las casillas del borde izquierdo con las del derecho.',
       right: 'El mapa es un toro: la primera columna es vecina de la última, y la primera fila de la última. Ahí se pierden las simplificaciones más grandes.'
     },
     {
       t: 'Aplicar De Morgan a medias',
+      g: 'Boole',
       wrong: 'NOT(A · B) = NOT A · NOT B',
       right: 'NOT(A · B) = NOT A + NOT B. Al negar, el operador también cambia: el AND se vuelve OR y al revés.'
     },
     {
       t: 'Agrupar en Karnaugh un número que no sea potencia de dos',
+      g: 'Boole',
       wrong: 'Rodear tres casillas juntas.',
       right: 'Los grupos son de 1, 2, 4, 8… Tres casillas se cubren con dos grupos de dos que se solapen, y solaparse está permitido.'
     },
     {
       t: 'Latch y flip-flop como sinónimos',
+      g: 'Secuenciales',
       wrong: 'Usar un latch donde el diseño pide captura en flanco.',
       right: 'El latch es transparente durante todo el nivel activo, así que la entrada se cuela en la salida mientras tanto. El flip-flop solo mira en el flanco.'
     },
     {
       t: 'Colocar mal la salida en Moore y Mealy',
+      g: 'Secuenciales',
       wrong: 'Escribir la salida sobre las flechas en una máquina de Moore.',
       right: 'En Moore la salida vive en el estado (se escribe dentro del círculo); en Mealy vive en la transición (sobre la flecha), porque depende también de la entrada.'
     },
     {
       t: 'Contar direcciones como líneas',
+      g: 'Memoria',
       wrong: '«16 líneas de dirección, luego 16 posiciones».',
       right: '2¹⁶ = 65 536 posiciones. Y la capacidad total es ese número multiplicado por la anchura de cada palabra.'
     },
     {
       t: 'Convertir hexadecimal pasando por decimal',
+      g: 'Numeración',
       wrong: 'Pasar cada dígito hex a decimal, sumar, y luego el total a binario.',
       right: 'Cada dígito hex son exactamente 4 bits: se sustituye uno a uno y ya está. Pasar por decimal es más largo y donde se cometen los errores.'
     },
     {
       t: 'Fiarse de un contador asíncrono',
+      g: 'Secuenciales',
       wrong: 'Leer la salida de un contador asíncrono en cualquier momento.',
       right: 'Los retardos se acumulan etapa a etapa, así que durante la transición aparecen valores intermedios que no corresponden a ningún estado real.'
     },
     {
       t: 'Pensar que el pipeline acelera cada instrucción',
+      g: 'Arquitectura',
       wrong: '«Con cinco etapas, cada instrucción tarda la quinta parte».',
       right: 'Una instrucción suelta tarda lo mismo o algo más. Lo que se multiplica es el número de instrucciones terminadas por unidad de tiempo.'
     }

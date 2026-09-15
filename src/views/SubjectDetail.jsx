@@ -14,7 +14,7 @@ const SubjectPlan = lazy(() => import('../modules/study-planner/SubjectPlan.jsx'
 // Los problemas con sus soluciones pesan: solo al abrir la pestaña.
 const Practice = lazy(() => import('../components/Practice.jsx'))
 const SubjectMap = lazy(() => import('../components/SubjectMap.jsx'))
-import { IconArrowLeft, IconPlus, IconTrash, IconDrive, IconLink, IconCards, IconExternal } from '../components/Icons.jsx'
+import { IconArrowLeft, IconPlus, IconTrash, IconDrive, IconLink, IconCards, IconExternal, IconPrint } from '../components/Icons.jsx'
 
 // El mapa solo se ofrece donde hay uno: una pestaña vacía en las otras
 // 28 asignaturas sería una promesa que la app no cumple.
@@ -152,6 +152,10 @@ export default function SubjectDetail({ id, tab: routeTab, navigate }) {
           />
         </div>
         <div style={{ flex: 1 }} />
+        <button className="btn btn-ghost" onClick={() => navigate(`/repaso/${id}`)}>
+          <IconPrint style={{ width: 15, height: 15 }} aria-hidden="true" />
+          Ficha de repaso
+        </button>
         <button className="btn btn-secondary" onClick={() => navigate(`/estudio/${id}`)}>
           <IconCards style={{ width: 15, height: 15 }} aria-hidden="true" />
           Flashcards ({deckSize})
