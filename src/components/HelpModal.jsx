@@ -55,8 +55,14 @@ export default function HelpModal({ onClose }) {
             repiten examen tras examen.
           </li>
           <li>
-            <strong>Dudas</strong>: lo que no te queda claro se apunta al cerrar una sesión de estudio o a mano desde
-            la asignatura, aparece en Inicio hasta que la resuelves, y al resolverla se convierte en tarjeta.
+            <strong>Práctica</strong> (pestaña de cada asignatura): problemas para resolver en papel, con pista y
+            solución razonada detrás de un clic. Te autocorriges, y los que fallas se acumulan en su filtro para volver
+            sobre ellos. Te dice en qué tema flojeas.
+          </li>
+          <li>
+            <strong>Dudas</strong>: lo que no te queda claro se apunta al cerrar una sesión de estudio, al fallar un
+            problema o a mano desde la asignatura; aparece en Inicio hasta que la resuelves, y al resolverla se
+            convierte en tarjeta.
           </li>
         </ol>
 

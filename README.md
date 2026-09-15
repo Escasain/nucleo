@@ -19,6 +19,7 @@ La build usa rutas relativas (`base: './'` en `vite.config.js`), así que el mis
 - **Sesión de estudio enfocada** — desde cualquier bloque del calendario (o buscando la unidad con Ctrl+K) se abre una pantalla con lo único que hace falta al sentarse: qué unidad toca, los temas de la guía que cubre, el material que encaja con ella y un cronómetro. Al terminar registra los minutos reales **atados a esa unidad del temario** y, si quieres, la marca como hecha.
 - **Progreso: el plan contra la realidad** — las horas que te propusiste frente a las que registraste, semana a semana; cuánto tardas de verdad en cada unidad frente a lo estimado, con un botón para **corregir el plan entero a tu ritmo** (reversible, y sin pisar los ajustes que hayas hecho a mano); si a tu ritmo real llegas a cada examen o cuántas horas te faltarían; y un mapa de calor de un año de estudio.
 - **Conceptos clave y trampas** — dentro de la guía de cada asignatura: el vocabulario que bloquea, definido sin usar el propio término, con para qué sirve y con qué se confunde; y «dónde se cae todo el mundo», los errores que se repiten examen tras examen con lo que se hace mal y lo que es. Cada concepto se convierte en tarjeta de repaso de un clic, o todos de golpe: ahí estaba el verdadero coste de las flashcards. Disponible en Álgebra y Matemática Discreta y en Tecnología de Computadores; añadir otra asignatura es crear su fichero en `src/data/concepts/`.
+- **Práctica con solución razonada** — una pestaña por asignatura con problemas para resolver en papel: 28 en Álgebra y 21 en Tecnología de Computadores, por tema y con su nivel (básico, medio, examen). La pista empuja sin dar la respuesta y la solución viene paso a paso, las dos detrás de un clic para que el ejercicio no se convierta en lectura. Te autocorriges, los fallados se filtran aparte para volver sobre ellos, y el panel te dice en qué tema flojeas de verdad. Al fallar puedes apuntar qué te faltaba y pasa a tus dudas.
 - **Explícatelo con tus palabras** — al cerrar una sesión de estudio, dos campos: qué has entendido y qué te ha quedado a medias. Contarlo es lo que separa haber leído un tema de haberlo entendido, y si te atascas al escribirlo ahí está el agujero. Queda guardado por unidad para releerlo antes del examen.
 - **Dudas** — lo que no entiendes se apunta antes de que se te olvide que no lo entendías; aparece en Inicio hasta que la resuelves, y al resolverla se convierte en tarjeta de repaso con tu propia respuesta detrás.
 - **Panel «Hoy»** — bloque bimestral en curso, horario de hoy, tarjetas por repasar, entregas próximas y atrasadas, objetivo semanal y racha de días estudiando.
@@ -81,6 +82,7 @@ src/
   data/guide/          ← guía de estudio: temario, recursos y laboratorio por asignatura
     year1.js, year2.js, year3.js, meta.js (kit del estudiante, evaluación)
   data/concepts/       ← conceptos clave y trampas por asignatura (carga bajo demanda)
+  data/practice/       ← problemas con pista y solución por asignatura (carga bajo demanda)
   lib/
     store.jsx          ← estado global + persistencia (local y Drive)
     stats.js           ← minutos, rachas, expediente, nota UNIPRO
@@ -90,7 +92,7 @@ src/
     dates.js
   views/               ← Dashboard, Plan, SubjectDetail, Agenda, Study, Progress, Focus, Settings
   components/          ← Sidebar, Modal, Checkbox, Icons, StudyGuide y KeyConcepts (carga bajo demanda),
-                         Understanding, SearchModal, HelpModal
+                         Understanding, Practice, SearchModal, HelpModal
   modules/
     study-planner/     ← calendario de estudio
       planner-engine.js    ← buildSchedule() y utilidades de fecha propias

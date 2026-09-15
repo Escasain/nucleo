@@ -58,6 +58,8 @@ export function emptyData() {
     pomodoro: [],
     schedule: [],
     topicProgress: {},
+    // Intentos de los problemas de práctica, por «asignatura:problema».
+    practice: {},
     settings: { ...DEFAULT_SETTINGS },
     planner: { ...DEFAULT_PLANNER }
   }
@@ -96,9 +98,29 @@ export function normalize(raw) {
         { done: asArray(v && v.done), total: Number(v && v.total) || 0 }
       ])
     ),
+    practice: normalizePractice(raw.practice),
     settings: { ...DEFAULT_SETTINGS, ...asObject(raw.settings) },
     planner: normalizePlanner(raw.planner)
   }
+}
+
+// Un intento solo puede ser 'ok' o 'fail'; los contadores, enteros no
+// negativos. Cualquier otra cosa venida de una copia editada a mano se
+// descarta en vez de propagar NaN por las estadísticas.
+function normalizePractice(raw) {
+  const out = {}
+  for (const [k, v] of Object.entries(asObject(raw))) {
+    const a = asObject(v)
+    const last = a.last === 'ok' || a.last === 'fail' ? a.last : null
+    if (!last) continue
+    out[k] = {
+      ok: Math.max(0, Math.floor(Number(a.ok)) || 0),
+      fail: Math.max(0, Math.floor(Number(a.fail)) || 0),
+      last,
+      lastAt: typeof a.lastAt === 'string' ? a.lastAt : todayISO()
+    }
+  }
+  return out
 }
 
 // El planificador guarda horas y marcas por unidad: si algo viene con
@@ -207,6 +229,29 @@ function reducer(data, action) {
         ...data,
         understanding: data.understanding.map((n) => (n.id === action.id ? { ...n, ...action.patch } : n))
       })
+    case 'logAttempt': {
+      const key = `${action.subjectId}:${action.problemId}`
+      const prev = data.practice[key] || { ok: 0, fail: 0 }
+      const okNow = action.result === 'ok'
+      return stamp({
+        ...data,
+        practice: {
+          ...data.practice,
+          [key]: {
+            ok: prev.ok + (okNow ? 1 : 0),
+            fail: prev.fail + (okNow ? 0 : 1),
+            last: okNow ? 'ok' : 'fail',
+            lastAt: todayISO()
+          }
+        }
+      })
+    }
+    case 'clearAttempt': {
+      const rest = { ...data.practice }
+      delete rest[`${action.subjectId}:${action.problemId}`]
+      return stamp({ ...data, practice: rest })
+    }
+
     case 'deleteUnderstanding':
       return stamp({ ...data, understanding: data.understanding.filter((n) => n.id !== action.id) })
 

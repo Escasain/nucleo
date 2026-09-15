@@ -1368,3 +1368,51 @@ a.guide-res-title:hover { color: var(--pine); text-decoration: underline; }
 .doubt-row { width: 100%; text-align: left; background: none; border: none; font: inherit; cursor: pointer; }
 .doubt-row:hover { background: var(--linen-2); }
 .doubt-row:focus-visible { outline: 2px solid var(--moss); outline-offset: -2px; }
+
+/* ============================================================
+   Práctica
+   ============================================================ */
+.stat-of { font-size: 15px; font-weight: 500; color: var(--ink-faint); }
+
+.prob-list { list-style: none; margin: 8px 0 0; padding: 0; }
+.prob { padding: 16px 0; border-top: 1px solid var(--linen-2); }
+.prob:first-child { border-top: none; padding-top: 6px; }
+.prob-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.prob-mark { font-size: 11.5px; font-weight: 600; }
+.prob-mark.ok { color: var(--st-aprobada); }
+.prob-mark.fail { color: var(--st-suspensa); }
+.prob-q { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--ink); white-space: pre-wrap; }
+.prob-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.prob-hint {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  background: var(--gold-soft);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.prob-solution { margin-top: 12px; padding: 12px 14px; background: var(--linen-2); border-radius: var(--radius-sm); }
+.prob-key { margin: 0 0 8px; font-size: 14px; color: var(--pine); }
+.prob-a {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ink);
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+.prob-verdict { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.prob-verdict .guide-fine { margin: 0; }
+.prob-verdict svg { width: 13px; height: 13px; }
+.prob-why { margin-top: 14px; }
+.prob-why label { display: block; margin-bottom: 4px; }
+.prob-why .actions { margin-top: 8px; }
+
+/* Nivel del problema, sobre los colores ya usados por los tipos de unidad */
+.plan-kind.is-l1 { background: var(--moss-soft); color: var(--pine); }
+.plan-kind.is-l2 { background: var(--gold-soft); color: #7a5a12; }
+.plan-kind.is-l3 { background: var(--clay-soft); color: #8a4526; }
+
+.prob.is-ok .prob-q { color: var(--ink-soft); }
