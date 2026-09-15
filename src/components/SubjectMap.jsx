@@ -73,7 +73,7 @@ export default function SubjectMap({ subjectId, navigate }) {
 
   const geom = useMemo(() => (levels.length ? placeNodes(levels) : null), [levels])
 
-  if (!nodes) {
+  if (!nodes || nodes.length === 0) {
     return (
       <div className="card empty">
         <div className="big">Esta asignatura todavía no tiene mapa</div>

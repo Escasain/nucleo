@@ -85,6 +85,9 @@ export function mapStatus(nodes, doneUnits, byTopic) {
     const okFirst = topic ? topic.okFirst : 0
     const rate = tried > 0 ? okFirst / tried : null
     const complete = units.length > 0 && doneCount === units.length
+    // El listón es más alto que el de Práctica (que avisa por debajo del
+    // 70 %) a propósito: allí solo se señala un tema flojo, aquí se
+    // manda a alguien a rehacer trabajo anterior. Eso hay que acertarlo.
     const weak = tried >= 2 && rate < 0.5
     return {
       node,

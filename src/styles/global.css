@@ -1441,7 +1441,6 @@ a.guide-res-title:hover { color: var(--pine); text-decoration: underline; }
 #smap-arrow-on path { fill: var(--pine); }
 
 .smap-node { cursor: pointer; transition: opacity 0.15s ease; }
-.smap-node:focus { outline: none; }
 .smap-node .smap-box { fill: var(--paper); stroke: var(--line); stroke-width: 1.5; transition: stroke 0.15s ease; }
 .smap-node .smap-t {
   font-family: var(--font-body);
@@ -1463,8 +1462,11 @@ a.guide-res-title:hover { color: var(--pine); text-decoration: underline; }
 .smap-node.is-weak .smap-bar { fill: var(--clay); }
 
 .smap-node.is-sel .smap-box { stroke-width: 3; }
-.smap-node:hover .smap-box,
-.smap-node:focus-visible .smap-box { stroke-width: 3; }
+.smap-node:hover .smap-box { stroke-width: 3; }
+/* El foco no puede parecerse a la selección: engrosar el borde hacía
+   que un tema enfocado con el tabulador se viera igual que el abierto.
+   Cambia el color, que sí los distingue. */
+.smap-node:focus-visible .smap-box { stroke: var(--ink); stroke-width: 3; }
 .smap-node.is-dim { opacity: 0.4; }
 
 .smap-detail { margin-top: 14px; }
