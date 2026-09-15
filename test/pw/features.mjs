@@ -1,4 +1,4 @@
-import { lanzar } from './navegador.mjs'
+import { lanzar, vigilarConsola } from './navegador.mjs'
 const ARTEFACTOS = new URL('../.artefactos/', import.meta.url).pathname
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []
@@ -11,8 +11,7 @@ const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0
 const b = await lanzar()
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } })
 const p = await ctx.newPage()
-p.on('pageerror', (e) => errors.push(`[pageerror] ${e.message}`))
-p.on('console', (m) => { if (m.type() === 'error' && !/ERR_CONNECTION|ERR_FAILED|ERR_CERT/.test(m.text())) errors.push(`[error] ${m.text()}`) })
+vigilarConsola(p, errors)
 
 // ---- Inicio: tutorial, Hoy, expediente
 await p.goto(BASE, { waitUntil: 'networkidle' })
@@ -197,7 +196,6 @@ check('copia antigua sin campos nuevos: sin errores', errors.length === before)
 
 // ---- Móvil 400 px: nuevas vistas sin overflow
 const m = await ctx.newPage()
-m.on('pageerror', (e) => errors.push(`[mobile] ${e.message}`))
 await m.setViewportSize({ width: 400, height: 800 })
 for (const [h, action] of [['', null], ['#/agenda', 'Mes'], ['#/agenda', 'Horario semanal'], ['#/estudio', null], ['#/asignatura/algebra', null], ['#/ajustes', null]]) {
   await m.goto(BASE + h, { waitUntil: 'networkidle' })

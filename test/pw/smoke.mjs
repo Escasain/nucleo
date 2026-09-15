@@ -1,4 +1,4 @@
-import { lanzar } from './navegador.mjs'
+import { lanzar, vigilarConsola } from './navegador.mjs'
 const ARTEFACTOS = new URL('../.artefactos/', import.meta.url).pathname
 
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
@@ -12,12 +12,8 @@ function check(name, ok, extra = '') {
 const browser = await lanzar()
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } })
 const page = await ctx.newPage()
-// ERR_CERT: el proxy de red del entorno sirve las fuentes de Google con
-// un certificado que el navegador rechaza. No es la app.
-page.on('console', (m) => {
-  if ((m.type() === 'error' || m.type() === 'warning') && !/ERR_CERT/.test(m.text())) errors.push(`[${m.type()}] ${m.text()}`)
-})
-page.on('pageerror', (e) => errors.push(`[pageerror] ${e.message}`))
+// Esta suite vigila también los warning, no solo los errores.
+vigilarConsola(page, errors, { avisos: true })
 
 await page.goto(BASE, { waitUntil: 'networkidle' })
 

@@ -1,4 +1,4 @@
-import { lanzar } from './navegador.mjs'
+import { lanzar, vigilarConsola } from './navegador.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []
 const check = (n, ok, x = '') => { out.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' :: ' + x : ''}`); if (!ok) process.exitCode = 1 }
@@ -16,8 +16,7 @@ const freshCal = async (pg) => {
 const b = await lanzar()
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } })
 const p = await ctx.newPage()
-p.on('pageerror', e => errors.push(`[pageerror] ${e.message}`))
-p.on('console', m => { if (m.type() === 'error' && !/ERR_CONNECTION|ERR_FAILED/.test(m.text())) errors.push(`[error] ${m.text()}`) })
+vigilarConsola(p, errors)
 
 // ---------- Menú lateral
 await p.goto(BASE, { waitUntil: 'networkidle' })
@@ -149,7 +148,6 @@ check('aria-expanded pasa a true', (await p.locator('.plan-day[aria-expanded=tru
 
 // ---------- móvil
 const m = await ctx.newPage()
-m.on('pageerror', e => errors.push(`[mobile] ${e.message}`))
 await m.setViewportSize({ width: 400, height: 800 })
 await m.goto(BASE + '#/calendario', { waitUntil: 'networkidle' })
 await m.waitForTimeout(500)

@@ -1,4 +1,4 @@
-import { lanzar } from './navegador.mjs'
+import { lanzar, vigilarConsola } from './navegador.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []
 const check = (n, ok, x = '') => { out.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' :: ' + x : ''}`); if (!ok) process.exitCode = 1 }
@@ -9,8 +9,7 @@ process.on('exit', () => { console.log(out.join('\n')); console.log('\n--- CONSO
 const b = await lanzar()
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } })
 const p = await ctx.newPage()
-p.on('pageerror', (e) => errors.push(`[pageerror] ${e.message}`))
-p.on('console', (m) => { if (m.type() === 'error' && !/ERR_CONNECTION|ERR_FAILED/.test(m.text())) errors.push(`[error] ${m.text()}`) })
+vigilarConsola(p, errors)
 const planner = () => p.evaluate(() => JSON.parse(localStorage.getItem('nucleo.data')).planner)
 
 // ---------- Inicio: tarjeta compacta

@@ -1,6 +1,6 @@
 // El mapa de la asignatura en el navegador: que se dibuje, que responda
 // a lo que llevas hecho y que el consejo cambie con tus datos.
-import { lanzar } from './navegador.mjs'
+import { lanzar, vigilarConsola } from './navegador.mjs'
 const ARTEFACTOS = new URL('../.artefactos/', import.meta.url).pathname
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []
@@ -9,8 +9,7 @@ const check = (n, ok, x = '') => { out.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? 
 const b = await lanzar()
 const ctx = await b.newContext({ viewport: { width: 1280, height: 1000 } })
 const p = await ctx.newPage()
-p.on('console', (m) => { if (m.type() === 'error' && !/ERR_(CONNECTION|NAME|BLOCKED|CERT)/.test(m.text())) errors.push(m.text()) })
-p.on('pageerror', (e) => errors.push('pageerror: ' + String(e)))
+vigilarConsola(p, errors)
 
 const seed = (data) => p.evaluate((d) => {
   const cur = JSON.parse(localStorage.getItem('nucleo.data') || '{}')

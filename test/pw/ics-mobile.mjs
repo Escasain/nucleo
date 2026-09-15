@@ -1,4 +1,4 @@
-import { lanzar } from './navegador.mjs'
+import { lanzar, vigilarConsola } from './navegador.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []
 const check = (n, ok, x='') => { out.push(`${ok?'PASS':'FAIL'}  ${n}${x?' :: '+x:''}`); if (!ok) process.exitCode = 1 }
@@ -8,8 +8,7 @@ process.on('exit', () => { console.log(out.join('\n')); console.log('\n--- CONSO
 const b = await lanzar()
 const ctx = await b.newContext({ viewport: { width: 400, height: 800 } })
 const m = await ctx.newPage()
-m.on('pageerror', e => errors.push(`[pageerror] ${e.message}`))
-m.on('console', x => { if (x.type()==='error' && !/ERR_CONNECTION|ERR_FAILED/.test(x.text())) errors.push(x.text()) })
+vigilarConsola(m, errors)
 
 await m.goto(BASE + '#/calendario', { waitUntil: 'networkidle' })
 await m.waitForTimeout(600)

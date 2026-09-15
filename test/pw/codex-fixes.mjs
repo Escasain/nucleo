@@ -1,4 +1,4 @@
-import { lanzar } from './navegador.mjs'
+import { lanzar, vigilarConsola } from './navegador.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []
 const check = (n, ok, x = '') => { out.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' :: ' + x : ''}`); if (!ok) process.exitCode = 1 }
@@ -8,8 +8,7 @@ const iso = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}
 const b = await lanzar()
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } })
 const p = await ctx.newPage()
-p.on('pageerror', e => errors.push(`[pageerror] ${e.message}`))
-p.on('console', m => { if (m.type() === 'error' && !/ERR_CONNECTION|ERR_FAILED|ERR_CERT/.test(m.text())) errors.push(`[error] ${m.text()}`) })
+vigilarConsola(p, errors)
 
 // ===== Codex #2: los CTA «Ver calendario» llevan al calendario, no a Agenda
 await p.goto(BASE, { waitUntil: 'networkidle' })

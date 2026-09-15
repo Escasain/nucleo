@@ -1,4 +1,4 @@
-import { lanzar } from './navegador.mjs'
+import { lanzar, vigilarConsola } from './navegador.mjs'
 import { CURRICULUM } from '../../src/data/curriculum.js'
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []
@@ -10,8 +10,7 @@ process.on('exit', () => { console.log(out.join('\n')); console.log('\n--- CONSO
 const b = await lanzar()
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } })
 const p = await ctx.newPage()
-p.on('pageerror', (e) => errors.push(`[pageerror] ${e.message}`))
-p.on('console', (m) => { if (m.type() === 'error' && !/ERR_CONNECTION|ERR_FAILED|ERR_CERT/.test(m.text())) errors.push(`[error] ${m.text()}`) })
+vigilarConsola(p, errors)
 
 // ---- Las 30 asignaturas: la guía carga con todas sus secciones
 let totalRes = 0, badLinks = 0
@@ -80,7 +79,6 @@ check('kit muestra evaluación UNIPRO', (await p.locator('#student-kit').innerTe
 
 // ---- Móvil 400 px: la guía no desborda
 const m = await ctx.newPage()
-m.on('pageerror', (e) => errors.push(`[mobile] ${e.message}`))
 await m.setViewportSize({ width: 400, height: 800 })
 for (const id of ['algebra', 'seguridad', 'tfb']) {
   await m.goto(BASE + '#/asignatura/' + id, { waitUntil: 'networkidle' })

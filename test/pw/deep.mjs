@@ -1,5 +1,5 @@
 process.on('exit', () => console.log(results.join('\n')))
-import { lanzar } from './navegador.mjs'
+import { lanzar, vigilarConsola } from './navegador.mjs'
 const ARTEFACTOS = new URL('../.artefactos/', import.meta.url).pathname
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const results = [], errors = []
@@ -8,8 +8,7 @@ const check = (n, ok, x = '') => { results.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${
 const browser = await lanzar()
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } })
 const page = await ctx.newPage()
-page.on('pageerror', (e) => errors.push(`[pageerror] ${e.message}`))
-page.on('console', (m) => { if (m.type() === 'error' && !m.text().includes('ERR_CONNECTION')) errors.push(`[error] ${m.text()}`) })
+vigilarConsola(page, errors)
 
 // ---- Pomodoro completo con reloj simulado: 1 registro de 25 min, no 2
 await page.clock.install()
@@ -27,7 +26,6 @@ check('reloj de descanso arranca en 5 min', (await page.locator('.pomodoro .time
 // ---- Parada a mitad: minutos completos, sin duplicar (StrictMode)
 const ctxP = await browser.newContext({ viewport: { width: 1280, height: 900 } })
 const pP = await ctxP.newPage()
-pP.on('pageerror', (e) => errors.push(`[pageerror] ${e.message}`))
 await pP.clock.install()
 await pP.goto(BASE + '#/estudio', { waitUntil: 'domcontentloaded' })
 await pP.waitForTimeout(400)
@@ -41,7 +39,6 @@ check('parada a mitad: 3 min exactos', pom2.length === 1 && pom2[0].minutes === 
 // ---- Leitner: «Otra vez» no repite la misma tarjeta en bucle
 const ctx2 = await browser.newContext({ viewport: { width: 1280, height: 900 } })
 const p2 = await ctx2.newPage()
-p2.on('pageerror', (e) => errors.push(`[pageerror] ${e.message}`))
 await p2.goto(BASE + '#/estudio/algebra', { waitUntil: 'networkidle' })
 await p2.waitForTimeout(300)
 for (const [f, b] of [['P1', 'R1'], ['P2', 'R2']]) {

@@ -1,6 +1,6 @@
 // Fundamentos de Programación: la tercera asignatura entera, y sin
 // haber tocado un solo componente.
-import { lanzar } from './navegador.mjs'
+import { lanzar, vigilarConsola } from './navegador.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []
 const check = (n, ok, x = '') => { out.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' :: ' + x : ''}`); if (!ok) process.exitCode = 1 }
@@ -8,8 +8,7 @@ const check = (n, ok, x = '') => { out.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? 
 const b = await lanzar()
 const ctx = await b.newContext({ viewport: { width: 1280, height: 1050 } })
 const p = await ctx.newPage()
-p.on('console', (m) => { if (m.type() === 'error' && !/ERR_(CONNECTION|NAME|BLOCKED|CERT|FAILED)/.test(m.text())) errors.push(m.text()) })
-p.on('pageerror', (e) => errors.push('pageerror: ' + String(e)))
+vigilarConsola(p, errors)
 
 // ---------- entra en el planificador
 await p.goto(BASE + '#/asignatura/fund-prog/calendario', { waitUntil: 'networkidle' })
