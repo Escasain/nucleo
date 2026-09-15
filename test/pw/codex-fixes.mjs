@@ -1,11 +1,11 @@
-import { chromium } from 'playwright'
+import { lanzar } from './navegador.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []
 const check = (n, ok, x = '') => { out.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' :: ' + x : ''}`); if (!ok) process.exitCode = 1 }
 process.on('exit', () => { console.log(out.join('\n')); console.log('\n--- CONSOLA (' + errors.length + ') ---\n' + (errors.join('\n') || '(limpia)')); console.log(`\n${out.filter(x=>x.startsWith('PASS')).length} PASS · ${out.filter(x=>x.startsWith('FAIL')).length} FAIL`) })
 const iso = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
 
-const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' })
+const b = await lanzar()
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } })
 const p = await ctx.newPage()
 p.on('pageerror', e => errors.push(`[pageerror] ${e.message}`))

@@ -1,11 +1,11 @@
 process.on('exit', () => console.log(results.join('\n')))
-import { chromium } from 'playwright'
+import { lanzar } from './navegador.mjs'
 const ARTEFACTOS = new URL('../.artefactos/', import.meta.url).pathname
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const results = [], errors = []
 const check = (n, ok, x = '') => { results.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' :: ' + x : ''}`); if (!ok) process.exitCode = 1 }
 
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' })
+const browser = await lanzar()
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } })
 const page = await ctx.newPage()
 page.on('pageerror', (e) => errors.push(`[pageerror] ${e.message}`))
@@ -121,6 +121,8 @@ await p2.waitForTimeout(200)
 check('«Desde Drive» desactivado sin App ID', await p2.getByRole('button', { name: 'Desde Drive' }).isDisabled())
 check('no se carga ningún script de Google', (await p2.evaluate(() => document.querySelectorAll('script[src*="google"]').length)) === 0)
 
+
+check('sin errores de consola', errors.length === 0, errors.slice(0, 3).join(' | '))
 
 console.log('\n--- CONSOLA (' + errors.length + ') ---')
 console.log(errors.slice(0, 20).join('\n') || '(limpia)')

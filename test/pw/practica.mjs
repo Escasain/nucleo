@@ -1,10 +1,10 @@
 // La pestaña de Práctica: resolver, autocorregirse y aprender del fallo.
-import { chromium } from 'playwright'
+import { lanzar } from './navegador.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []
 const check = (n, ok, x = '') => { out.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' :: ' + x : ''}`); if (!ok) process.exitCode = 1 }
 
-const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' })
+const b = await lanzar()
 const ctx = await b.newContext({ viewport: { width: 1280, height: 1000 } })
 const p = await ctx.newPage()
 p.on('console', (m) => { if (m.type() === 'error' && !/ERR_(CONNECTION|NAME|BLOCKED)/.test(m.text())) errors.push(m.text()) })
@@ -234,6 +234,8 @@ check('el botón de solución dice si está abierto',
   (await p.locator('.prob').first().getByRole('button', { name: 'Ver solución' }).getAttribute('aria-expanded')) === 'false')
 check('la barra de progreso está etiquetada',
   (await p.locator('.practice [role="progressbar"]').getAttribute('aria-label')) === 'Problemas hechos')
+
+check('sin errores de consola', errors.length === 0, errors.slice(0, 3).join(' | '))
 
 console.log(out.join('\n'))
 console.log(`\n--- CONSOLA (${errors.length}) ---`)

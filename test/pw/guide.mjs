@@ -1,11 +1,13 @@
-import { chromium } from 'playwright'
+import { lanzar } from './navegador.mjs'
 import { CURRICULUM } from '../../src/data/curriculum.js'
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
 const out = [], errors = []
 const check = (n, ok, x = '') => { out.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' :: ' + x : ''}`); if (!ok) process.exitCode = 1 }
+check('sin errores de consola', errors.length === 0, errors.slice(0, 3).join(' | '))
+
 process.on('exit', () => { console.log(out.join('\n')); console.log('\n--- CONSOLA (' + errors.length + ') ---\n' + (errors.join('\n') || '(limpia)')) })
 
-const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' })
+const b = await lanzar()
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } })
 const p = await ctx.newPage()
 p.on('pageerror', (e) => errors.push(`[pageerror] ${e.message}`))

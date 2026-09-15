@@ -1,4 +1,4 @@
-import { chromium } from 'playwright'
+import { lanzar } from './navegador.mjs'
 const ARTEFACTOS = new URL('../.artefactos/', import.meta.url).pathname
 
 const BASE = process.env.BASE || 'http://127.0.0.1:5173/'
@@ -9,7 +9,7 @@ function check(name, ok, extra = '') {
   if (!ok) process.exitCode = 1
 }
 
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' })
+const browser = await lanzar()
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } })
 const page = await ctx.newPage()
 // ERR_CERT: el proxy de red del entorno sirve las fuentes de Google con
@@ -197,6 +197,8 @@ check('menú móvil abre', await m.locator('.sidebar.open').isVisible())
 await m.locator('.nav').getByRole('link', { name: 'Agenda' }).click()
 await m.waitForTimeout(350)
 check('menú móvil navega y cierra', m.url().includes('#/agenda') && (await m.locator('.sidebar.open').count()) === 0)
+
+check('sin errores de consola', errors.length === 0, errors.slice(0, 3).join(' | '))
 
 console.log(results.join('\n'))
 console.log('\n--- CONSOLA (' + errors.length + ') ---')
