@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { Suspense, lazy, useCallback, useEffect, useState } from 'react'
 import { StoreProvider, useStore } from './lib/store.jsx'
 import { PlannerProvider } from './modules/study-planner/PlannerProvider.jsx'
 import { useRoute } from './lib/router.jsx'
@@ -14,6 +14,9 @@ import StudyOverview from './modules/study-planner/StudyOverview.jsx'
 import Study from './views/Study.jsx'
 import Progress from './views/Progress.jsx'
 import Focus from './views/Focus.jsx'
+// El simulacro carga los problemas de la asignatura: fuera del bundle
+// principal, igual que la pestaña de práctica.
+const MockExam = lazy(() => import('./views/MockExam.jsx'))
 import Settings from './views/Settings.jsx'
 
 const GO_KEYS = { i: '/', p: '/plan', c: '/calendario', a: '/agenda', e: '/estudio', r: '/progreso', j: '/ajustes' }
@@ -97,6 +100,14 @@ function Shell() {
         unitId={route.unitId}
         navigate={navigate}
       />
+    )
+  // La key fuerza remontar al cambiar de asignatura: si no, encadenar dos
+  // simulacros arrastraría el examen y el reloj del anterior.
+  else if (route.name === 'simulacro')
+    view = (
+      <Suspense fallback={<div className="card empty">Montando el examen…</div>}>
+        <MockExam key={route.subjectId} subjectId={route.subjectId} navigate={navigate} />
+      </Suspense>
     )
   else if (route.name === 'ajustes') view = <Settings onHelp={() => setHelp(true)} />
   else view = <Dashboard navigate={navigate} />

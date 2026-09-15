@@ -60,6 +60,20 @@ export function emptyData() {
     topicProgress: {},
     // Intentos de los problemas de práctica, por «asignatura:problema».
     practice: {},
+    // Simulacros de examen ya corregidos, uno por entrada. El resultado
+    // problema a problema no se guarda aquí: al corregir cada uno se
+    // registra como un intento más en `practice`, que es donde vive la
+    // pregunta «¿me sale este problema?». Aquí queda lo que la práctica
+    // no sabe responder: qué nota sacaste, en cuánto tiempo y si vas a
+    // mejor de un simulacro al siguiente.
+    mocks: [],
+    // Examen a medias, si lo hay. Vive en el store y no en el
+    // componente para que salir de la pantalla no lo tire: el
+    // planificador, el mapa o el calendario están a un clic, y con el
+    // reloj corriendo perder el examen por mirar una fecha sería
+    // inaceptable. El final es absoluto, así que el tiempo sigue
+    // corriendo mientras estás fuera, como en un examen de verdad.
+    mockRun: null,
     settings: { ...DEFAULT_SETTINGS },
     planner: { ...DEFAULT_PLANNER }
   }
@@ -99,8 +113,40 @@ export function normalize(raw) {
       ])
     ),
     practice: normalizePractice(raw.practice),
+    mockRun: normalizeMockRun(raw.mockRun),
+    mocks: asArray(raw.mocks)
+      .filter((m) => m && m.id && m.subjectId && Number.isFinite(Number(m.nota)))
+      .map((m) => ({
+        ...m,
+        nota: Number(m.nota),
+        total: Math.max(0, Math.floor(Number(m.total)) || 0),
+        aciertos: Math.max(0, Math.floor(Number(m.aciertos)) || 0),
+        minutes: Math.max(0, Math.floor(Number(m.minutes)) || 0),
+        temas: asArray(m.temas).filter((t) => t && typeof t.g === 'string')
+      })),
     settings: { ...DEFAULT_SETTINGS, ...asObject(raw.settings) },
     planner: normalizePlanner(raw.planner)
+  }
+}
+
+// Un examen a medias solo se recupera si trae lo imprescindible para
+// reconstruirlo: de qué asignatura, qué problemas y cuándo acaba. Si no,
+// se descarta en vez de dejar la pantalla a medio montar.
+function normalizeMockRun(raw) {
+  const r = asObject(raw)
+  const problemIds = asArray(r.problemIds).filter((x) => typeof x === 'string')
+  if (!r.subjectId || problemIds.length === 0) return null
+  if (r.fase !== 'haciendo' && r.fase !== 'corrigiendo') return null
+  return {
+    subjectId: String(r.subjectId),
+    problemIds,
+    fase: r.fase,
+    items: asArray(r.items)
+      .filter((it) => it && typeof it.problemId === 'string')
+      .map((it) => ({ ...it, ok: it.ok === true || it.ok === false ? it.ok : null })),
+    startedAt: Number(r.startedAt) || 0,
+    endsAt: Number(r.endsAt) || 0,
+    usedMs: Math.max(0, Number(r.usedMs) || 0)
   }
 }
 
@@ -339,6 +385,18 @@ function reducer(data, action) {
         }
       })
     }
+
+    case 'setMockRun':
+      return stamp({ ...data, mockRun: action.run })
+
+    case 'saveMock':
+      return stamp({
+        ...data,
+        mockRun: null,
+        mocks: [...data.mocks, { id: uid(), date: new Date().toISOString(), ...action.mock }]
+      })
+    case 'deleteMock':
+      return stamp({ ...data, mocks: data.mocks.filter((m) => m.id !== action.id) })
 
     case 'setPlanner':
       return stamp({ ...data, planner: { ...data.planner, ...action.patch } })
