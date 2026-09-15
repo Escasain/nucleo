@@ -61,10 +61,11 @@ export function shuffle(list, random) {
  *      otra cosa distinta de un examen.
  *   2. Dentro de un tema, primero lo difícil. La etiqueta «examen» está
  *      puesta precisamente para esto.
- *   3. A igualdad, primero lo que no tengas ya resuelto limpio. Repetir
- *      un problema que te salió a la primera no mide nada — pero si en
- *      un tema no queda otra cosa, se usa igual antes que dejar el tema
- *      fuera: la regla 1 manda.
+ *   3. A igualdad DE NIVEL, primero lo que no tengas ya resuelto limpio.
+ *      Repetir un problema que te salió a la primera no mide nada — pero
+ *      esta regla no baja la dificultad para conseguirlo, ni deja un
+ *      tema fuera del examen cuando lo tienes todo resuelto: manda la
+ *      regla 1, luego la 2, y esta desempata.
  */
 export function buildMock(problems, attempts, subjectId, { count = 6, seed = 1 } = {}) {
   const random = rng(seed)
@@ -82,10 +83,14 @@ export function buildMock(problems, attempts, subjectId, { count = 6, seed = 1 }
   // simulacros seguidos del mismo temario saldrían idénticos.
   const desempate = new Map(problems.map((pr) => [pr.id, random()]))
   for (const lista of porTema.values()) {
+    // El nivel manda, y solo a igualdad de nivel entra lo de no repetir
+    // lo ya resuelto. Al revés (hallazgo de Codex en el PR #9) un tema
+    // con su problema difícil ya sacado caía al fácil sin tocar, y el
+    // simulacro se ablandaba justo para quien más ha practicado.
     lista.sort(
       (a, b) =>
-        Number(yaLimpio(a)) - Number(yaLimpio(b)) ||
         (b.level || 1) - (a.level || 1) ||
+        Number(yaLimpio(a)) - Number(yaLimpio(b)) ||
         desempate.get(a.id) - desempate.get(b.id)
     )
   }

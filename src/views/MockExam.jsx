@@ -39,10 +39,25 @@ export default function MockExam({ subjectId, navigate }) {
   const subject = subjectById(subjectId)
   const problems = practiceFor(subjectId)
 
-  const [fase, setFase] = useState('antes') // antes → haciendo → corrigiendo → hecho
+  // Un examen a medias de esta asignatura: se reanuda tal cual. Solo se
+  // lee al montar — de ahí los inicializadores de useState — porque a
+  // partir de ahí manda el estado del componente.
+  const guardadoRun = useMemo(() => {
+    const r = data.mockRun
+    if (!r || r.subjectId !== subjectId || !problems) return null
+    const recuperados = r.problemIds.map((id) => problems.find((pr) => pr.id === id)).filter(Boolean)
+    // Si el temario cambió y algún problema ya no existe, el examen no
+    // se puede reconstruir entero: mejor empezar otro que enseñar uno
+    // cojo con preguntas que faltan.
+    if (recuperados.length !== r.problemIds.length || r.items.length !== recuperados.length) return null
+    return { ...r, problemas: recuperados }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const [fase, setFase] = useState(() => guardadoRun?.fase || 'antes')
   const [count, setCount] = useState(6)
   const [seed, setSeed] = useState(() => Date.now() % 100000)
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState(() => guardadoRun?.items || [])
   const [restante, setRestante] = useState(0)
   const [abierto, setAbierto] = useState(null)
   const [guardado, setGuardado] = useState(null)
@@ -50,8 +65,12 @@ export default function MockExam({ subjectId, navigate }) {
   // El reloj sale de la hora, no de contar tics: el navegador frena los
   // temporizadores de una pestaña en segundo plano. Contando tics, mirar
   // otra cosa un momento te regalaría minutos de examen.
-  const acaba = useRef(0)
-  const empezo = useRef(0)
+  const acaba = useRef(guardadoRun?.endsAt || 0)
+  const empezo = useRef(guardadoRun?.startedAt || 0)
+  // Minutos que costó el examen, congelados al entregar. Si se contaran
+  // hasta el final incluirían el rato de corregirse, y el historial
+  // diría cosas como «105 min de los 90 que tenías».
+  const usados = useRef(guardadoRun?.usedMs || 0)
 
   // El examen que se está viendo antes de empezar. Depende de tus
   // intentos porque evita los problemas que ya sacaste limpios.
@@ -63,7 +82,7 @@ export default function MockExam({ subjectId, navigate }) {
   // no un memo: corregir un problema registra un intento, eso cambia
   // `data.practice`, y el examen se rehacía debajo de ti — las filas que
   // salían del nuevo sorteo desaparecían a mitad de la corrección.
-  const [examen, setExamen] = useState([])
+  const [examen, setExamen] = useState(() => guardadoRun?.problemas || [])
   const enCurso = fase !== 'antes'
   const limite = useMemo(() => mockMinutes(enCurso ? examen : propuesta), [enCurso, examen, propuesta])
   const resultado = useMemo(() => mockResult(items), [items])
@@ -74,7 +93,11 @@ export default function MockExam({ subjectId, navigate }) {
   )
 
   const entregar = useCallback(() => {
-    setFase((f) => (f === 'haciendo' ? 'corrigiendo' : f))
+    setFase((f) => {
+      if (f !== 'haciendo') return f
+      usados.current = Date.now() - empezo.current
+      return 'corrigiendo'
+    })
   }, [])
 
   useEffect(() => {
@@ -94,16 +117,27 @@ export default function MockExam({ subjectId, navigate }) {
     }
   }, [fase, entregar])
 
-  // Cerrar la pestaña con el examen empezado lo pierde: el navegador avisa.
+  // El examen en curso se guarda a cada cambio. La barra lateral, el
+  // botón de volver y el botón «atrás» del navegador solo cambian el
+  // hash, y un cambio de hash no dispara `beforeunload`: sin esto, mirar
+  // una fecha en el calendario a mitad de examen lo tiraría sin avisar
+  // siquiera. Guardarlo es mejor que avisar — se sale y se vuelve, y el
+  // reloj sigue corriendo mientras tanto porque el final es absoluto.
   useEffect(() => {
-    if (fase !== 'haciendo' && fase !== 'corrigiendo') return undefined
-    const warn = (e) => {
-      e.preventDefault()
-      e.returnValue = ''
-    }
-    window.addEventListener('beforeunload', warn)
-    return () => window.removeEventListener('beforeunload', warn)
-  }, [fase])
+    if (fase !== 'haciendo' && fase !== 'corrigiendo') return
+    dispatch({
+      type: 'setMockRun',
+      run: {
+        subjectId,
+        problemIds: examen.map((pr) => pr.id),
+        items,
+        fase,
+        startedAt: empezo.current,
+        endsAt: acaba.current,
+        usedMs: usados.current
+      }
+    })
+  }, [fase, items, examen, subjectId, dispatch])
 
   if (!subject || !problems) {
     return (
@@ -132,6 +166,20 @@ export default function MockExam({ subjectId, navigate }) {
   // se registran al cerrar el examen, uno por problema. Registrarlos a
   // cada clic contaría dos intentos por dudar, y un sí cambiado a no
   // dejaría el problema como «recuperado» cuando no lo sacaste.
+  // Salida de emergencia: un examen empezado por error, o reanudado y ya
+  // no querido, tiene que poder tirarse sin corregir seis problemas.
+  // Nada de lo hecho se registra: un examen abandonado no es un
+  // resultado.
+  function descartar() {
+    dispatch({ type: 'setMockRun', run: null })
+    usados.current = 0
+    setExamen([])
+    setItems([])
+    setAbierto(null)
+    setFase('antes')
+    toast('Simulacro descartado')
+  }
+
   function marcar(problemId, ok) {
     setItems((list) => list.map((it) => (it.problemId === problemId ? { ...it, ok } : it)))
   }
@@ -143,7 +191,7 @@ export default function MockExam({ subjectId, navigate }) {
     for (const it of items) {
       dispatch({ type: 'logAttempt', subjectId, problemId: it.problemId, result: it.ok ? 'ok' : 'fail' })
     }
-    const minutos = Math.max(1, Math.round((Date.now() - empezo.current) / 60000))
+    const minutos = Math.max(1, Math.round(usados.current / 60000))
     const mock = {
       subjectId,
       minutes: minutos,
@@ -254,6 +302,9 @@ export default function MockExam({ subjectId, navigate }) {
               </div>
             </div>
             <div className="grow" />
+            <button className="btn btn-ghost" onClick={descartar}>
+              Descartar
+            </button>
             <button className="btn btn-primary" onClick={entregar}>
               Entregar y corregir
             </button>
@@ -346,7 +397,10 @@ export default function MockExam({ subjectId, navigate }) {
             )
           })}
 
-          <div className="card">
+          <div className="card actions">
+            <button className="btn btn-ghost" onClick={descartar}>
+              Descartar
+            </button>
             <button className="btn btn-primary" onClick={terminar} disabled={resultado.pendiente > 0}>
               {resultado.pendiente > 0 ? `Quedan ${resultado.pendiente} por corregir` : 'Ver el resultado'}
             </button>
@@ -402,6 +456,7 @@ export default function MockExam({ subjectId, navigate }) {
               className="btn btn-secondary"
               onClick={() => {
                 setSeed(Math.floor(Math.random() * 100000))
+                usados.current = 0
                 setExamen([])
                 setItems([])
                 setGuardado(null)
