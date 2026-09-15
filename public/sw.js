@@ -1,18 +1,49 @@
 /* NÚCLEO service worker — caché básica para funcionar offline.
    Estrategia: network-first para la app, cache-first para fuentes.
    Nunca intercepta las llamadas a Google (auth, Drive, Picker). */
-const CACHE = 'nucleo-v2'
+// Las dos constantes siguientes las rellena scripts/precache.mjs al
+// construir. En desarrollo se quedan como están, que es lo correcto:
+// ahí no hay ficheros con hash que precachear.
+const BUILD = 'dev'
+const ASSETS = []
+
+// El nombre lleva el sello del build, así que al desplegar una versión
+// nueva la de antes se borra entera en 'activate' y no se acumulan
+// ficheros con hash viejo para siempre.
+const CACHE = `nucleo-${BUILD}`
 
 // Base real de la instalación (/nucleo/ en GitHub Pages, / en local),
 // deducida de la ruta del propio fichero en lugar de escribirla a mano.
 const BASE = new URL('./', self.location).pathname
 const SHELL = [BASE, `${BASE}index.html`, `${BASE}manifest.webmanifest`]
 
+// Todo lo que hace falta para funcionar sin red, incluidos los trozos
+// que se cargan bajo demanda. Sin esto, una pantalla que no hubieras
+// abierto nunca antes de quedarte sin cobertura no cargaba: el import
+// dinámico se rechazaba y Suspense no lo recoge (eso es cosa de un
+// error boundary), así que se quedaba a medias sin decir por qué.
+const PRECACHE = [...SHELL, ...ASSETS.map((f) => BASE + f)]
+
+// ignoreVary es imprescindible, y costó encontrarlo. Los servidores que
+// sirven esto —vite preview y Vercel— mandan «Vary: Origin» en cada
+// fichero, y Vite marca el <script> y el <link> con crossorigin. O sea:
+// la petición de verdad lleva cabecera Origin y la que hace cache.add()
+// al precachear no la lleva, así que sin esto la entrada guardada NO
+// casa nunca y la caché no sirve para nada. El fallo es silencioso: la
+// caché se ve llena y la app no arranca igual.
+//
+// Aquí es seguro: son ficheros nuestros, con hash en el nombre, y no
+// cambian según quién los pida.
+const MATCH = { ignoreVary: true }
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((c) => c.addAll(SHELL))
+      // Uno a uno y no con addAll: addAll es todo o nada, así que un
+      // solo fichero que fallara dejaba la caché entera vacía y la app
+      // sin funcionar offline, en silencio.
+      .then((c) => Promise.all(PRECACHE.map((u) => c.add(u).catch(() => {}))))
       .catch(() => {})
       .then(() => self.skipWaiting())
   )
@@ -58,7 +89,7 @@ self.addEventListener('fetch', (event) => {
   // Fuentes: cache-first
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
     event.respondWith(
-      caches.match(request).then(
+      caches.match(request, MATCH).then(
         (hit) =>
           hit ||
           fetch(request)
@@ -89,11 +120,12 @@ self.addEventListener('fetch', (event) => {
         return res
       })
       .catch(async () => {
-        const hit = await caches.match(request)
+        const hit = await caches.match(request, MATCH)
         if (hit) return hit
         // Una navegación sin red cae siempre en el index de la app
         if (request.mode === 'navigate') {
-          const shell = (await caches.match(`${BASE}index.html`)) || (await caches.match(BASE))
+          const shell =
+            (await caches.match(`${BASE}index.html`, MATCH)) || (await caches.match(BASE, MATCH))
           if (shell) return shell
         }
         return Response.error()
