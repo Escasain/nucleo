@@ -1646,3 +1646,91 @@ a.guide-res-title:hover { color: var(--pine); text-decoration: underline; }
   .review-terms li { color: #333; }
   .review .guide-label { color: #555; }
 }
+
+/* ============================================================
+   Conexiones entre asignaturas
+   ------------------------------------------------------------
+   La jerarquía visual sigue a la pedagógica: «dónde deja de valer»
+   pesa más que el resto de la tarjeta a propósito. Es lo que nadie
+   escribe y lo que cuesta un examen.
+   ============================================================ */
+.bridge-list { display: flex; flex-direction: column; gap: 16px; }
+
+.bridge-t { font-size: 17px; margin-bottom: 4px; }
+.bridge-idea {
+  margin: 0 0 14px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+.bridge-ends { list-style: none; margin: 8px 0 16px; padding: 0; }
+.bridge-end {
+  padding: 11px 0 11px 13px;
+  border-left: 2.5px solid var(--linen-3);
+  margin-top: 10px;
+}
+.bridge-end.is-activa { border-left-color: var(--gold); }
+.bridge-end.is-hecha { border-left-color: var(--pine-soft); }
+
+.bridge-end-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+.bridge-end-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+}
+.bridge-end-name:hover { border-bottom-color: var(--pine); }
+.bridge-as {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  color: var(--pine);
+  background: var(--pine-soft);
+  border-radius: var(--radius-sm);
+  padding: 2px 7px;
+}
+.bridge-end-state { font-size: 11.5px; color: var(--ink-faint); }
+.bridge-how { margin: 5px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); }
+
+.bridge-same {
+  margin: 8px 0 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+
+/* El apartado que más importa: fondo propio para que no se lea como
+   una nota al margen de lo anterior. */
+.bridge-breaks {
+  background: var(--clay-soft);
+  border-radius: var(--radius-sm);
+  padding: 13px 15px;
+  margin-bottom: 14px;
+}
+.bridge-breaks .guide-label { color: #8a4526; }
+.bridge-breaks p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #6b3a22;
+  white-space: pre-wrap;
+}
+
+.bridge-check p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+
+.bridge-later {
+  margin: 16px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--linen-2);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-faint);
+}
+.bridge-later strong { color: var(--ink-soft); }
+.bridge-later a { color: var(--pine); }

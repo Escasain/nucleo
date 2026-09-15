@@ -48,6 +48,11 @@ jobs:
 
       - run: npm run test:e2e
 
+      # La app sin conexión, contra el build de dist/ y no contra el
+      # servidor de desarrollo: en desarrollo el service worker se sirve
+      # sin la lista de ficheros y probar ahí no probaría nada.
+      - run: npm run test:offline
+
       - name: Guardar las capturas si algo falla
         if: failure()
         uses: actions/upload-artifact@v4
