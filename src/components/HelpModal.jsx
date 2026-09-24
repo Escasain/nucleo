@@ -60,6 +60,12 @@ export default function HelpModal({ onClose }) {
             repiten examen tras examen.
           </li>
           <li>
+            <strong>Cómo se hace</strong> (pestaña de cada asignatura): la receta de cada procedimiento que se pide de
+            verdad. Cuándo toca usarlo —que es lo que se examina—, los pasos con su nota de dónde se tuerce cada uno, la
+            trampa habitual y un ejemplo resuelto detrás de un clic. Se ordenan poniendo delante lo que estás fallando
+            en Práctica.
+          </li>
+          <li>
             <strong>Práctica</strong> (pestaña de cada asignatura): problemas para resolver en papel, con pista y
             solución razonada detrás de un clic. Te autocorriges, y los que fallas se acumulan en su filtro para volver
             sobre ellos. Te dice en qué tema flojeas.

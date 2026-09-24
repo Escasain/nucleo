@@ -1734,3 +1734,85 @@ a.guide-res-title:hover { color: var(--pine); text-decoration: underline; }
 }
 .bridge-later strong { color: var(--ink-soft); }
 .bridge-later a { color: var(--pine); }
+
+/* ============================================================
+   Cómo se hace
+   ------------------------------------------------------------
+   La jerarquía sigue a la pedagógica, igual que en Conexiones.
+   «Cuándo se usa» va arriba y con fondo propio porque reconocer qué
+   método pide un enunciado es lo que de verdad se examina, y «Dónde
+   se tuerce» pesa más que los pasos porque los pasos se leen una vez
+   y la trampa se cae siempre.
+   ============================================================ */
+.howto { display: flex; flex-direction: column; gap: 16px; }
+.howto-topic { padding-top: 14px; padding-bottom: 14px; }
+
+.howto-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.howto-t { font-size: 17px; margin: 0; }
+.howto-g { font-size: 11.5px; color: var(--ink-faint); }
+.howto-weak { font-size: 11.5px; font-weight: 600; color: var(--st-suspensa); }
+.howto-card.is-weak { border-left: 2.5px solid var(--st-suspensa); }
+
+/* Lo primero de la ficha y lo que más se salta quien va con prisa:
+   por eso lleva fondo, para que no se lea como una introducción. */
+.howto-when {
+  background: var(--pine-soft);
+  border-radius: var(--radius-sm);
+  padding: 13px 15px;
+  margin-bottom: 16px;
+}
+.howto-when p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+
+.howto-steps { margin: 8px 0 16px; padding-left: 22px; }
+.howto-steps li { margin-top: 12px; }
+.howto-steps li:first-child { margin-top: 6px; }
+.howto-step { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--ink); }
+.howto-note {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-faint);
+}
+
+.howto-trap {
+  background: var(--clay-soft);
+  border-radius: var(--radius-sm);
+  padding: 13px 15px;
+  margin-bottom: 14px;
+}
+.howto-trap .guide-label { color: #8a4526; }
+.howto-trap p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #6b3a22;
+}
+
+.howto-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.howto-actions .guide-fine { margin: 0; }
+
+.howto-ex { margin-top: 12px; padding: 12px 14px; background: var(--linen-2); border-radius: var(--radius-sm); }
+.howto-ex-q { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--pine); }
+.howto-walk { margin: 0; padding-left: 20px; }
+.howto-walk li {
+  margin-top: 6px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  white-space: pre-wrap;
+}
+
+.howto-linked {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--linen-2);
+  font-size: 13px;
+  color: var(--ink-faint);
+}
+.howto-linked strong { color: var(--ink-soft); }
+.howto-linked a { color: var(--pine); }

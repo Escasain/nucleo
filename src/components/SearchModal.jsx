@@ -16,6 +16,7 @@ export default function SearchModal({ onClose, navigate }) {
   const [q, setQ] = useState('')
   const [guide, setGuide] = useState(null)
   const [concepts, setConcepts] = useState(null)
+  const [procedures, setProcedures] = useState(null)
   const [cursor, setCursor] = useState(0)
   const inputRef = useRef(null)
   const listRef = useRef(null)
@@ -34,6 +35,9 @@ export default function SearchModal({ onClose, navigate }) {
     import('../data/concepts/index.js')
       .then((m) => alive && setConcepts(m.CONCEPTS))
       .catch(() => alive && setConcepts({}))
+    import('../data/procedures/index.js')
+      .then((m) => alive && setProcedures(m.PROCEDURES))
+      .catch(() => alive && setProcedures({}))
     return () => {
       alive = false
     }
@@ -117,6 +121,25 @@ export default function SearchModal({ onClose, navigate }) {
         }
       }
     }
+    // Los procedimientos se buscan por el nombre y por «cuándo se usa»:
+    // buscar «desbordamiento» o «no sé por dónde empezar» tiene que
+    // caer en la receta, no solo escribir «Karnaugh» tal cual.
+    if (procedures) {
+      for (const [sid, list] of Object.entries(procedures)) {
+        const s = CURRICULUM.find((x) => x.id === sid)
+        for (const pr of list) {
+          if (norm(pr.t).includes(t) || norm(pr.when).includes(t)) {
+            out.push({
+              kind: 'Cómo se hace',
+              title: pr.t,
+              sub: `${s?.name || sid} · ${pr.g}`,
+              path: `/asignatura/${sid}/como`,
+              Icon: IconBook
+            })
+          }
+        }
+      }
+    }
     if (guide) {
       for (const [sid, g] of Object.entries(guide)) {
         const s = CURRICULUM.find((x) => x.id === sid)
@@ -134,7 +157,7 @@ export default function SearchModal({ onClose, navigate }) {
       }
     }
     return out.slice(0, 40)
-  }, [q, data, guide, concepts])
+  }, [q, data, guide, concepts, procedures])
 
   useEffect(() => {
     setCursor(0)

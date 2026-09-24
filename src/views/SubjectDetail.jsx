@@ -6,6 +6,7 @@ import { todayISO, formatShort, minutesLabel, relativeLabel, isOverdue } from '.
 import { pickDriveFiles, isPickerConfigured } from '../lib/driveSync.js'
 import { hasMap } from '../data/map/meta.js'
 import { hasBridges } from '../data/bridges/meta.js'
+import { hasProcedures } from '../data/procedures/meta.js'
 import Modal from '../components/Modal.jsx'
 import Checkbox from '../components/Checkbox.jsx'
 import Understanding from '../components/Understanding.jsx'
@@ -17,6 +18,8 @@ const Practice = lazy(() => import('../components/Practice.jsx'))
 const SubjectMap = lazy(() => import('../components/SubjectMap.jsx'))
 // Los puentes son mucho texto: igual que el mapa, solo al abrirlos.
 const SubjectBridges = lazy(() => import('../components/SubjectBridges.jsx'))
+// Los procedimientos traen sus ejemplos resueltos: otro módulo pesado.
+const SubjectProcedures = lazy(() => import('../components/SubjectProcedures.jsx'))
 import { IconArrowLeft, IconPlus, IconTrash, IconDrive, IconLink, IconCards, IconExternal, IconPrint } from '../components/Icons.jsx'
 
 // El mapa solo se ofrece donde hay uno: una pestaña vacía en las otras
@@ -27,6 +30,7 @@ function tabsFor(subjectId) {
     { id: 'calendario', label: 'Calendario' },
     ...(hasMap(subjectId) ? [{ id: 'mapa', label: 'Mapa' }] : []),
     ...(hasBridges(subjectId) ? [{ id: 'conexiones', label: 'Conexiones' }] : []),
+    ...(hasProcedures(subjectId) ? [{ id: 'como', label: 'Cómo se hace' }] : []),
     { id: 'practica', label: 'Práctica' },
     { id: 'clases', label: 'Clases y sesiones' },
     { id: 'recursos', label: 'Recursos' },
@@ -203,6 +207,12 @@ export default function SubjectDetail({ id, tab: routeTab, navigate }) {
       {tab === 'conexiones' && (
         <Suspense fallback={<div className="card empty">Cargando las conexiones…</div>}>
           <SubjectBridges subjectId={id} />
+        </Suspense>
+      )}
+
+      {tab === 'como' && (
+        <Suspense fallback={<div className="card empty">Cargando los procedimientos…</div>}>
+          <SubjectProcedures subjectId={id} />
         </Suspense>
       )}
 

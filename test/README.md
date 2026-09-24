@@ -24,6 +24,7 @@ con Node a secas: `npm test` no instala nada.
 | `java` | **compila y ejecuta** cada fragmento de Java que la app publica |
 | `precache` | que el build meta todos sus ficheros en el service worker |
 | `bridges` | los puentes entre asignaturas: que ningún extremo apunte al vacío |
+| `procedures` | los procedimientos: que enlacen con problemas y temas que existen |
 
 **`offline.mjs`** — la única que ejecuta el service worker, y por eso
 va aparte: tiene que correr contra `vite preview` y el build de `dist/`,
