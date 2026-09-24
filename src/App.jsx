@@ -20,9 +20,12 @@ const MockExam = lazy(() => import('./views/MockExam.jsx'))
 // La ficha de repaso junta problemas, conceptos y el mapa: fuera del
 // bundle principal, que solo se abre unos pocos días al cuatrimestre.
 const Review = lazy(() => import('./views/Review.jsx'))
+// Las conexiones son texto largo y se leen de vez en cuando: tampoco
+// tienen por qué viajar en el bundle principal.
+const Connections = lazy(() => import('./views/Connections.jsx'))
 import Settings from './views/Settings.jsx'
 
-const GO_KEYS = { i: '/', p: '/plan', c: '/calendario', a: '/agenda', e: '/estudio', r: '/progreso', j: '/ajustes' }
+const GO_KEYS = { i: '/', p: '/plan', c: '/calendario', a: '/agenda', e: '/estudio', r: '/progreso', x: '/conexiones', j: '/ajustes' }
 
 function isTyping(e) {
   const t = e.target
@@ -116,6 +119,12 @@ function Shell() {
     view = (
       <Suspense fallback={<div className="card empty">Montando la ficha…</div>}>
         <Review key={route.subjectId} subjectId={route.subjectId} navigate={navigate} />
+      </Suspense>
+    )
+  else if (route.name === 'conexiones')
+    view = (
+      <Suspense fallback={<div className="card empty">Cargando las conexiones…</div>}>
+        <Connections />
       </Suspense>
     )
   else if (route.name === 'ajustes') view = <Settings onHelp={() => setHelp(true)} />

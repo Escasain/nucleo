@@ -4,7 +4,7 @@ import Modal from './Modal.jsx'
 const SHORTCUTS = [
   ['?', 'Esta ayuda'],
   ['Ctrl / ⌘ + K', 'Buscar en toda la app'],
-  ['G luego I / P / C / A / E / R / J', 'Ir a Inicio, Plan, Calendario, Agenda, Estudio, Progreso, Ajustes'],
+  ['G luego I / P / C / A / E / R / X / J', 'Ir a Inicio, Plan, Calendario, Agenda, Estudio, Progreso, Conexiones, Ajustes'],
   ['Esc', 'Cerrar ventanas y menús']
 ]
 
@@ -48,6 +48,11 @@ export default function HelpModal({ onClose }) {
             <strong>Progreso</strong>: compara el plan con la realidad. Cuánto tardas de verdad frente a lo estimado
             (y un botón para corregir el plan entero a tu ritmo), cuántas de las horas previstas cumples, y si a tu
             ritmo real llegas a cada examen.
+          </li>
+          <li>
+            <strong>Conexiones</strong>: la misma idea vista desde varias asignaturas. Qué se traslada tal cual de una a
+            otra y, sobre todo, dónde deja de valer el parecido. Cada asignatura tiene además su propia pestaña con las
+            conexiones que la tocan.
           </li>
           <li>
             <strong>Conceptos clave</strong> (dentro de la guía de cada asignatura): el vocabulario que bloquea, con
